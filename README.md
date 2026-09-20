@@ -22,7 +22,6 @@ Antes de baixar o projeto, certifique-se de ter as seguintes ferramentas instala
 
 Abra o terminal na pasta onde deseja salvar o projeto e rode:
 
-bash
 
 git clone [https://github.com/Na4ttan/carometro-escolar.git](https://github.com/Na4ttan/carometro-escolar.git)
 cd carometro-escolar
@@ -53,7 +52,7 @@ source venv/bin/activate
 4. Instale as dependências:
 
 Bash
-pip install django djangorestframework django-cors-headers
+pip install django djangorestframework django-cors-headers Pillow
 5. Crie as tabelas no banco de dados e rode o servidor:
 
 Bash
@@ -88,3 +87,4 @@ Com os dois terminais rodando (um com o Django e outro com o Angular), abra o se
 Se a tela exibir a mensagem "API do Carômetro funcionando!", significa que o frontend conseguiu se conectar ao banco de dados com sucesso e o seu ambiente está 100% pronto para desenvolvimento.
 
 
+fotos dos alunos e professores.
