@@ -1,0 +1,40 @@
+<fieldset class="photo-field">
+  <legend>{{ label }}</legend>
+  <div class="photo-picker">
+    @if (preview()) {
+      <img class="photo-preview" [src]="preview()" [alt]="'Prévia: ' + label" />
+    } @else {
+      <span class="photo-placeholder" aria-hidden="true">+</span>
+    }
+    <div class="photo-actions">
+      <input
+        #galleryInput
+        class="file-input"
+        type="file"
+        accept="image/*"
+        (change)="selecionar($event)"
+      />
+      <button class="button-secondary" type="button" (click)="galleryInput.click()">
+        Escolher da galeria
+      </button>
+      <button class="button-secondary" type="button" (click)="abrirCamera()">
+        Tirar foto
+      </button>
+    </div>
+  </div>
+  <div class="camera-view" [hidden]="!cameraOpen()">
+    <video #cameraVideo autoplay playsinline></video>
+    <canvas #captureCanvas class="file-input"></canvas>
+    <div class="photo-actions">
+      <button class="button-secondary button-capture" type="button" (click)="capturarFoto()">
+        Capturar foto
+      </button>
+      <button class="button-secondary" type="button" (click)="fecharCamera()">
+        Fechar câmera
+      </button>
+    </div>
+  </div>
+  @if (error()) {
+    <span class="photo-error" role="alert">{{ error() }}</span>
+  }
+</fieldset>

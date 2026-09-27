@@ -1,1 +1,217 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  color-scheme: light;
+  --page-bg: #fff;
+  --surface: #fff;
+  --surface-muted: #f1f4f8;
+  --text: #202c3b;
+  --text-strong: #344256;
+  --text-label: #455367;
+  --text-secondary: #728095;
+  --text-muted: #8490a0;
+  --border: #e8edf2;
+  --border-input: #dce3eb;
+  --border-soft: #f0f2f5;
+  --blue: #3268ce;
+  --blue-soft: #e8f0ff;
+  --blue-text: #3869c2;
+  --orange-soft: #fff0e4;
+  --orange-text: #c57638;
+  --count-bg: #f1f4f8;
+  --info-bg: #f2f7ff;
+  --info-border: #d7e3f6;
+  --info-text: #496587;
+  --error-bg: #fff4f3;
+  --error-border: #f0cccc;
+  --error-text: #a13d39;
+  --success-bg: #f0fbf4;
+  --success-border: #cbe9d7;
+  --success-text: #30734a;
+}
+
+:root[data-theme='escuro'],
+body[data-theme='escuro'] {
+  color-scheme: dark;
+  --page-bg: #111827;
+  --surface: #1c2736;
+  --surface-muted: #263345;
+  --text: #e6edf6;
+  --text-strong: #e1e9f3;
+  --text-label: #c6d2e0;
+  --text-secondary: #a0afc1;
+  --text-muted: #9aa9bc;
+  --border: #344255;
+  --border-input: #45566c;
+  --border-soft: #344255;
+  --blue: #315fb4;
+  --blue-soft: #263b5b;
+  --blue-text: #a9c5ff;
+  --orange-soft: #49352c;
+  --orange-text: #f1b27f;
+  --count-bg: #293649;
+  --info-bg: #1b2c43;
+  --info-border: #344f70;
+  --info-text: #bbd2ee;
+  --error-bg: #422b31;
+  --error-border: #70424b;
+  --error-text: #ffb7bd;
+  --success-bg: #203a32;
+  --success-border: #3d6956;
+  --success-text: #a9e3bf;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background: var(--page-bg);
+  color: var(--text);
+  font-family: Arial, sans-serif;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.main-nav {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.main-nav button {
+  position: relative;
+  padding: 0 14px;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.main-nav button:hover,
+.main-nav button.active {
+  color: var(--blue);
+}
+
+.main-nav button.active::after {
+  position: absolute;
+  right: 12px;
+  bottom: 0;
+  left: 12px;
+  height: 2px;
+  background: var(--blue);
+  content: '';
+}
+
+.consultation {
+  display: grid;
+  gap: 24px;
+}
+
+.consultation-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.consultation-heading h2,
+.results-section h2 {
+  margin: 6px 0;
+  font-size: 21px;
+}
+
+.consultation-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.search-panel {
+  display: grid;
+  grid-template-columns: .8fr 1.5fr 1fr;
+  gap: 16px;
+}
+
+.results-section {
+  display: grid;
+  gap: 12px;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.person-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.result-photo {
+  width: 76px;
+  height: 76px;
+  flex: 0 0 auto;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.photo-fallback {
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.result-details {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.result-details h3 {
+  margin: 0;
+  color: var(--text-strong);
+  font-size: 14px;
+}
+
+.result-details span,
+.result-details small {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 820px) {
+  .search-panel {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 580px) {
+  .main-nav {
+    gap: 0;
+  }
+
+  .main-nav button {
+    padding: 0 8px;
+    font-size: 12px;
+  }
+
+  .consultation-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .search-panel {
+    grid-template-columns: 1fr;
+  }
+}

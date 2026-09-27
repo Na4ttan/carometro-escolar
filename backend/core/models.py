@@ -1,9 +1,19 @@
+from django.conf import settings
+from django.contrib.auth.hashers import check_password, make_password
 from django.db import models
+
 
 class Escola(models.Model):
     nome = models.CharField(max_length=200)
     cnpj = models.CharField(max_length=18, blank=True, null=True)
     endereco = models.CharField(max_length=255, blank=True, null=True)
+    usuario = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="escola",
+        blank=True,
+        null=True,
+    )
     ativo = models.BooleanField(default=True)
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
@@ -107,14 +117,28 @@ class Matricula(models.Model):
 
 
 class Professor(models.Model):
+    usuario = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="professor",
+        blank=True,
+        null=True,
+    )
     nome_completo = models.CharField(max_length=200)
-    email = models.EmailField(blank=True, null=True)
+    email = models.EmailField(unique=True)
+    senha = models.CharField(max_length=128, default="")
     matricula_funcional = models.CharField(max_length=50, unique=True, blank=True, null=True)
     foto = models.ImageField(upload_to="professores/", blank=True, null=True)
     ativo = models.BooleanField(default=True)
     turmas = models.ManyToManyField(Turma, related_name="professores", blank=True)
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
+
+    def set_password(self, raw_password):
+        self.senha = make_password(raw_password)
+
+    def check_password(self, raw_password):
+        return check_password(raw_password, self.senha)
 
     def __str__(self):
         return self.nome_completo

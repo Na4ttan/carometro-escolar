@@ -8,3 +8,13 @@
 /backend/__pycache__/
 /backend/db.sqlite3
 *.pyc
+
+# IDEs
+.idea/
+.vscode/
+
+# Media uploads
+/backend/alunos/*
+!/backend/alunos/.gitkeep
+/backend/professores/*
+!/backend/professores/.gitkeep
