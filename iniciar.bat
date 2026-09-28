@@ -38,11 +38,15 @@ echo     -^> http://localhost:4200 (Frontend Angular)
 echo     -^> http://localhost:8000 (Django / Admin / API)
 echo.
 echo   Celular (HTTPS):
-echo     -^> https://sweet-hounds-flash.loca.lt
+echo     -^> O link sera gerado pelo Localtunnel na linha abaixo.
+echo     -^> ATENCAO: Veja o endereco exibido em 'your url is: ...'.
+echo        Esse link pode variar a cada inicializacao e
+echo        e exatamente ele que deve ser aberto no celular!
 echo.
 echo   IMPORTANTE PARA O CELULAR (Primeiro Acesso):
-echo   Se o Localtunnel pedir senha/IP, consulte em:
-echo   https://loca.lt/mytunnelpassword e clique em Continue.
+echo   Se o Localtunnel exibir uma tela pedindo IP (Tunnel Password),
+echo   consulte seu IP em: https://loca.lt/mytunnelpassword
+echo   digite no campo e clique no botao Continue.
 echo ==========================================================
 echo Mantenha as janelas abertas enquanto estiver utilizando.
 echo.

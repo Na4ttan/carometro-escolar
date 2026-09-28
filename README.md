@@ -128,9 +128,11 @@ iniciar.bat
 ### 📱 Acesso no Celular (Mesmo Wi-Fi da Escola):
 
 1. Conecte o celular na mesma rede Wi-Fi do computador.
-2. Abra o navegador do celular e acesse o link seguro:
-   👉 **`https://sweet-hounds-flash.loca.lt/`**
-3. **Primeira abertura (Tela de liberação do Localtunnel):**
+2. Ao rodar o script de inicialização, observe a linha gerada pelo túnel no terminal:
+   👉 **`your url is: https://...loca.lt`**
+   *(Atenção: como o Localtunnel pode atribuir subdomínios diferentes a cada inicialização caso o anterior ainda esteja retido nos servidores públicos, use sempre o endereço exato informado nessa linha do seu terminal)*.
+3. Abra o navegador do celular e acesse esse endereço HTTPS.
+4. **Primeira abertura (Tela de liberação do Localtunnel):**
    - O Localtunnel exibe uma tela com o título *"Tunnel website ahead!"* solicitando o IP público (*Endpoint IP*).
    - O número exato do IP aparece impresso no seu terminal quando você roda o `./iniciar.sh` (ou consulte em https://loca.lt/mytunnelpassword).
    - Digite esse número no campo **IP Address** e clique em **Continue**.
@@ -219,7 +221,7 @@ Agora que a estrutura está pronta no Django Admin, **não é mais necessário u
 
 1. Acesse o sistema pelo navegador:
    - No computador: **http://localhost:4200/**
-   - No celular: **https://sweet-hounds-flash.loca.lt/**
+   - No celular: acesse a URL HTTPS gerada pelo túnel no terminal (ex: `https://...loca.lt`)
 2. Faça o login utilizando o **usuário e senha da escola** criados no Passo 2.1 (ex: `escola_central`).
 3. No **Painel da Escola**:
    - **Cadastrar Alunos:** preencha nome, data de nascimento, selecione a turma e tire a foto diretamente pela câmera do celular/webcam ou selecione um arquivo de imagem.
@@ -230,7 +232,7 @@ Agora que a estrutura está pronta no Django Admin, **não é mais necessário u
 
 ### Passo 4: Acesso do Professor ao Carômetro
 
-1. No mesmo formulário de login inicial da aplicação (http://localhost:4200/ ou https://sweet-hounds-flash.loca.lt/):
+1. No mesmo formulário de login inicial da aplicação (no computador em http://localhost:4200/ ou no celular pela URL HTTPS do túnel):
 2. O professor entra usando seu **e-mail** e a **senha** que a escola cadastrou para ele.
 3. O professor é direcionado automaticamente para o **Carômetro**, onde pode:
    - Selecionar suas turmas atribuídas.

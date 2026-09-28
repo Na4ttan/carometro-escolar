@@ -28,7 +28,7 @@ cleanup() {
     done
     pkill -f "manage.py runserver 0.0.0.0:8000" 2>/dev/null || true
     pkill -f "ng serve" 2>/dev/null || true
-    pkill -f "localtunnel.*sweet-hounds-flash" 2>/dev/null || true
+    pkill -f "localtunnel" 2>/dev/null || true
     exit 0
 }
 trap cleanup SIGINT SIGTERM EXIT
@@ -69,10 +69,13 @@ echo "    -> http://localhost:4200 (Frontend Angular)"
 echo "    -> http://localhost:8000 (Django / Admin / API)"
 echo ""
 echo "  Celular (HTTPS):"
-echo "    -> https://sweet-hounds-flash.loca.lt"
+echo "    -> O link será gerado pelo Localtunnel na linha abaixo."
+echo "    -> ATENÇÃO: Veja o endereço exibido em 'your url is: ...'."
+echo "       Esse link pode variar a cada inicialização e"
+echo "       é exatamente ele que deve ser aberto no celular!"
 echo ""
 echo "  IMPORTANTE PARA O CELULAR (Primeiro Acesso):"
-echo "  Caso apareça uma tela do Localtunnel pedindo IP,"
+echo "  Caso o navegador exiba uma tela do Localtunnel pedindo IP,"
 echo "  digite: $TUNNEL_PASSWORD e clique em 'Continue'."
 echo "=========================================================="
 echo "Pressione Ctrl+C para encerrar todos os serviços."
