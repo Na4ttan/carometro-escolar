@@ -2,48 +2,11 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { PhotoPickerComponent } from './photo-picker';
-
-interface Escola {
-  id: number;
-  nome: string;
-}
-
-export interface UsuarioPerfil {
-  tipo: 'escola' | 'professor';
-  id: number;
-  nome: string;
-  email?: string;
-  escola_nome?: string;
-}
-
-interface Turma {
-  id: number;
-  nome: string;
-  serie: string;
-  turno: string;
-  ano: number;
-}
-
-interface Aluno {
-  id: number;
-  nome_completo: string;
-  nome_social: string | null;
-  data_nascimento: string | null;
-  matricula: string | null;
-  foto: string | null;
-  turma_id: number | null;
-  turma_nome: string | null;
-}
-
-interface Professor {
-  id: number;
-  nome_completo: string;
-  email: string | null;
-  matricula_funcional: string | null;
-  foto: string | null;
-  turmas_ids: number[];
-  turmas_nomes: string[];
-}
+import { Escola } from './models/escola.model';
+import { UsuarioPerfil } from './models/usuario-perfil.model';
+import { Turma } from './models/turma.model';
+import { Aluno } from './models/aluno.model';
+import { Professor } from './models/professor.model';
 
 type Pagina = 'inicio' | 'consulta';
 type TipoConsulta = 'todos' | 'alunos' | 'professores';
