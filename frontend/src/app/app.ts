@@ -2,11 +2,11 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { PhotoPickerComponent } from './photo-picker';
-import { Escola } from './models/escola.model';
-import { UsuarioPerfil } from './models/usuario-perfil.model';
-import { Turma } from './models/turma.model';
-import { Aluno } from './models/aluno.model';
-import { Professor } from './models/professor.model';
+import { Escola } from './shared/models/escola.model';
+import { UsuarioPerfil } from './shared/models/usuario-perfil.model';
+import { Turma } from './shared/models/turma.model';
+import { Aluno } from './shared/models/aluno.model';
+import { Professor } from './shared/models/professor.model';
 
 type Pagina = 'inicio' | 'consulta';
 type TipoConsulta = 'todos' | 'alunos' | 'professores';
