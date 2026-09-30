@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { PhotoPickerComponent } from './photo-picker';
+import { PhotoPickerComponent } from './shared/components/photo-picker/photo-picker.component';
 import { Escola } from './shared/models/escola.model';
 import { UsuarioPerfil } from './shared/models/usuario-perfil.model';
 import { Turma } from './shared/models/turma.model';

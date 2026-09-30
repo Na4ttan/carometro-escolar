@@ -1,8 +1,8 @@
 <fieldset class="photo-field">
-  <legend>{{ label }}</legend>
+  <legend>{{ label() }}</legend>
   <div class="photo-picker">
     @if (preview()) {
-      <img class="photo-preview" [src]="preview()" [alt]="'Prévia: ' + label" />
+      <img class="photo-preview" [src]="preview()" [alt]="'Prévia: ' + label()" />
     } @else {
       <span class="photo-placeholder" aria-hidden="true">+</span>
     }

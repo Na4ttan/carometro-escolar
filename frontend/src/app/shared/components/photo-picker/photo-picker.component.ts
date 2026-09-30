@@ -1,28 +1,27 @@
 import {
   Component,
   ElementRef,
-  EventEmitter,
-  Input,
-  OnChanges,
   OnDestroy,
-  Output,
-  SimpleChanges,
-  ViewChild,
+  effect,
+  input,
+  output,
   signal,
+  viewChild,
 } from '@angular/core';
 
 @Component({
   selector: 'app-photo-picker',
-  templateUrl: './photo-picker.html',
-  styleUrl: './photo-picker.css',
+  standalone: true,
+  templateUrl: './photo-picker.component.html',
+  styleUrl: './photo-picker.component.css',
 })
-export class PhotoPickerComponent implements OnChanges, OnDestroy {
-  @Input({ required: true }) label = '';
-  @Input() photo: File | null = null;
-  @Output() photoChange = new EventEmitter<File | null>();
+export class PhotoPickerComponent implements OnDestroy {
+  readonly label = input.required<string>();
+  readonly photo = input<File | null>(null);
+  readonly photoChange = output<File | null>();
 
-  @ViewChild('cameraVideo') private cameraVideo!: ElementRef<HTMLVideoElement>;
-  @ViewChild('captureCanvas') private captureCanvas!: ElementRef<HTMLCanvasElement>;
+  private cameraVideo = viewChild.required<ElementRef<HTMLVideoElement>>('cameraVideo');
+  private captureCanvas = viewChild.required<ElementRef<HTMLCanvasElement>>('captureCanvas');
 
   preview = signal<string | null>(null);
   error = signal('');
@@ -30,11 +29,13 @@ export class PhotoPickerComponent implements OnChanges, OnDestroy {
   private cameraStream: MediaStream | null = null;
   private destroyed = false;
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['photo'] && this.photo === null) {
-      this.clearPreview();
-      this.error.set('');
-    }
+  constructor() {
+    effect(() => {
+      if (this.photo() === null) {
+        this.clearPreview();
+        this.error.set('');
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -65,7 +66,7 @@ export class PhotoPickerComponent implements OnChanges, OnDestroy {
 
       this.cameraStream = stream;
       this.cameraOpen.set(true);
-      const video = this.cameraVideo.nativeElement;
+      const video = this.cameraVideo().nativeElement;
       video.srcObject = stream;
       await video.play();
     } catch (error: unknown) {
@@ -75,8 +76,8 @@ export class PhotoPickerComponent implements OnChanges, OnDestroy {
   }
 
   async capturarFoto(): Promise<void> {
-    const video = this.cameraVideo.nativeElement;
-    const canvas = this.captureCanvas.nativeElement;
+    const video = this.cameraVideo().nativeElement;
+    const canvas = this.captureCanvas().nativeElement;
     if (!video.videoWidth || !video.videoHeight) {
       this.error.set('A câmera ainda está iniciando. Aguarde um instante e tente novamente.');
       return;
@@ -113,9 +114,7 @@ export class PhotoPickerComponent implements OnChanges, OnDestroy {
     this.cameraStream?.getTracks().forEach((track) => track.stop());
     this.cameraStream = null;
     this.cameraOpen.set(false);
-    if (this.cameraVideo) {
-      this.cameraVideo.nativeElement.srcObject = null;
-    }
+    this.cameraVideo().nativeElement.srcObject = null;
   }
 
   selecionar(event: Event): void {
