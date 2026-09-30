@@ -9,7 +9,7 @@ import { Aluno } from './shared/models/aluno.model';
 import { Professor } from './shared/models/professor.model';
 
 type Pagina = 'inicio' | 'consulta';
-type TipoConsulta = 'todos' | 'alunos' | 'professores';
+
 type Tema = 'claro' | 'escuro';
 
 @Component({

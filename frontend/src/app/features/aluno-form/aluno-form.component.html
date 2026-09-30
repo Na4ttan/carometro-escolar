@@ -1,0 +1,56 @@
+<section class="panel">
+  <div class="panel-heading">
+    <span class="icon-badge icon-blue">A</span>
+    <div>
+      <span class="eyebrow">ESTUDANTES</span>
+      <h2>Cadastrar aluno</h2>
+    </div>
+  </div>
+  <form (ngSubmit)="cadastrar()">
+<section class="panel">
+  <div class="panel-heading">
+    <span class="icon-badge icon-blue">A</span>
+    <div>
+      <span class="eyebrow">ESTUDANTES</span>
+      <h2>Cadastrar aluno</h2>
+    </div>
+  </div>
+  <form (ngSubmit)="cadastrar()">
+    <label>
+      Nome completo
+      <input name="nome" type="text" [(ngModel)]="form.nome_completo" maxlength="200" required />
+    </label>
+    <div class="form-row">
+      <label>
+        Nome social (opcional)
+        <input name="nomeSocial" type="text" [(ngModel)]="form.nome_social" maxlength="200" />
+      </label>
+      <label>
+        Data de nascimento (opcional)
+        <input name="nascimento" type="date" [(ngModel)]="form.data_nascimento" />
+      </label>
+    </div>
+    <div class="form-row">
+      <label>
+        Matrícula (opcional)
+        <input name="matricula" type="text" [(ngModel)]="form.matricula" maxlength="50" />
+      </label>
+      <label>
+        Turma
+        <select name="turma" [(ngModel)]="form.turma" required>
+          <option value="" disabled>Selecione uma turma</option>
+          @for (turma of turmas(); track turma.id) {
+            <option [value]="turma.id">{{ turma.serie }} · {{ turma.nome }} · {{ turma.ano }}</option>
+          }
+        </select>
+      </label>
+    </div>
+    <app-photo-picker label="Foto do aluno (obrigatória)" [(photo)]="foto" />
+    @if (erro()) {
+      <div class="notice notice-error" role="alert">{{ erro() }}</div>
+    }
+    <button class="button button-primary" type="submit" [disabled]="turmas().length === 0">
+      Cadastrar aluno
+    </button>
+  </form>
+</section>

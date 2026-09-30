@@ -1,0 +1,80 @@
+<section class="dashboard">
+  <div class="welcome">
+    <div>
+      <span class="eyebrow">PAINEL DA ESCOLA</span>
+      <h1>{{ escola()?.nome || 'Carregando...' }}</h1>
+      <p>Cadastre sua comunidade escolar e mantenha as turmas organizadas.</p>
+    </div>
+    <div class="summary">
+      <div><strong>{{ alunos().length }}</strong><span>alunos</span></div>
+      <div><strong>{{ professores().length }}</strong><span>professores</span></div>
+    </div>
+  </div>
+
+  @if (erro()) {
+    <div class="notice notice-error" role="alert">{{ erro() }}</div>
+  }
+  @if (mensagem()) {
+    <div class="notice notice-success" role="status">{{ mensagem() }}</div>
+  }
+
+  <div class="registration-grid">
+    <app-aluno-form (alunoAdicionado)="onAlunoAdicionado($event)" />
+    <app-professor-form (professorAdicionado)="onProfessorAdicionado($event)" />
+  </div>
+
+  <div class="lists-grid">
+    <section class="panel list-panel">
+
+  <div class="lists-grid">
+    <section class="panel list-panel">
+      <div class="list-heading">
+        <div>
+          <span class="eyebrow">CADASTROS</span>
+          <h2>Alunos</h2>
+        </div>
+        <span class="count">{{ alunos().length }}</span>
+      </div>
+      @if (alunos().length > 0) {
+        <ul class="people-list">
+          @for (aluno of alunos(); track aluno.id) {
+            <li>
+              <span class="person-avatar avatar-blue">{{ aluno.nome_completo.charAt(0) }}</span>
+              <span class="person-details">
+                <strong>{{ aluno.nome_social || aluno.nome_completo }}</strong>
+                <small>{{ aluno.turma_nome || 'Sem turma' }}</small>
+              </span>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="empty-state">Os alunos cadastrados aparecerão aqui.</p>
+      }
+    </section>
+
+    <section class="panel list-panel">
+      <div class="list-heading">
+        <div>
+          <span class="eyebrow">CADASTROS</span>
+          <h2>Professores</h2>
+        </div>
+        <span class="count">{{ professores().length }}</span>
+      </div>
+      @if (professores().length > 0) {
+        <ul class="people-list">
+          @for (professor of professores(); track professor.id) {
+            <li>
+              <span class="person-avatar avatar-orange">{{ professor.nome_completo.charAt(0) }}</span>
+              <span class="person-details">
+                <strong>{{ professor.nome_completo }}</strong>
+                <small>{{ professor.turmas_nomes?.join(', ') || 'Sem turma' }}</small>
+              </span>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="empty-state">Os professores cadastrados aparecerão aqui.</p>
+      }
+    </section>
+  </div>
+</section>
