@@ -57,4 +57,10 @@ export class ConsultaComponent implements OnInit {
     this.professorService.listar().subscribe(lista => this.professores.set(lista));
     this.turmaService.listar().subscribe(lista => this.turmas.set(lista));
   }
+
+  limparFiltros(): void {
+    this.filtro.set('');
+    this.turmaId.set('');
+    this.tipoConsulta.set(this.perfil()?.tipo === 'professor' ? 'alunos' : 'todos');
+  }
 }
