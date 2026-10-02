@@ -1,5 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { Router, RouterOutlet, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs';
 import { AuthService } from './core/services/auth.service';
 import { TemaService } from './core/services/tema.service';
 
@@ -13,9 +14,14 @@ export class App implements OnInit {
   protected authService = inject(AuthService);
   protected temaService = inject(TemaService);
   private router = inject(Router);
+  protected isLoginPage = signal(false);
 
   ngOnInit(): void {
     this.temaService.inicializar();
+    this.isLoginPage.set(this.router.url === '/login' || this.router.url === '/');
+    this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe(() => {
+      this.isLoginPage.set(this.router.url === '/login' || this.router.url === '/');
+    });
     if (this.authService.token()) {
       this.authService.carregarPerfil().subscribe({
         next: (perfil) => this.authService.perfil.set(perfil),

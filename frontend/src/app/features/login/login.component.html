@@ -1,14 +1,12 @@
 <section class="login-layout">
   <div class="intro">
-    <span class="eyebrow">GESTÃO ESCOLAR</span>
+    <span class="eyebrow">CARÔMETRO ESCOLAR</span>
     <h1>Um jeito simples de cuidar de cada rosto.</h1>
-    <p>Acesse o painel da sua escola ou entre como professor para visualizar o carômetro de suas turmas.</p>
   </div>
   <form class="panel login-panel" (ngSubmit)="entrar()">
     <div class="panel-heading">
       <span class="eyebrow">BEM-VINDA(O)</span>
       <h2>Acesse o sistema</h2>
-      <p>Entre com o usuário da escola ou com o e-mail de professor.</p>
     </div>
     <label>
       Usuário ou E-mail
@@ -30,6 +28,7 @@
         [ngModel]="password()"
         (ngModelChange)="password.set($event)"
         autocomplete="current-password"
+        placeholder="Digite a senha"
         required
       />
     </label>

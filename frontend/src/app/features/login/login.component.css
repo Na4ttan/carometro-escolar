@@ -1,0 +1,31 @@
+.panel-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  margin-bottom: 8px;
+}
+
+.panel-heading h2 {
+  margin: 7px 0;
+  font-size: 20px;
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.intro .eyebrow {
+  margin-bottom: 25px;
+  font-size: 17px;
+}
+
+.intro h1 {
+  margin: 0 0 18px;
+  max-width: 500px;
+  font-size: clamp(36px, 5vw, 56px);
+  line-height: 1.1;
+  letter-spacing: -2px;
+}

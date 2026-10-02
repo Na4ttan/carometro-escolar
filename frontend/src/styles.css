@@ -640,3 +640,8 @@ legend {
     grid-template-columns: 1fr;
   }
 }
+
+.topbar-login {
+  border-bottom: none;
+  justify-content: flex-end;
+}

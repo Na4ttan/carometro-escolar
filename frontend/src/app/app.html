@@ -1,5 +1,5 @@
 <main class="page">
-  <header class="topbar">
+  <header class="topbar"  [class.topbar-login]="isLoginPage()">
     @if (authService.perfil()?.tipo === 'escola') {
       <a class="brand" routerLink="/inicio" aria-label="Carômetro Escolar - início">
         <span class="brand-mark">C</span>
@@ -10,11 +10,6 @@
         <span class="brand-mark">C</span>
         <span>Carômetro Escolar</span>
       </a>
-    } @else {
-      <div class="brand" aria-label="Carômetro Escolar - início">
-        <span class="brand-mark">C</span>
-        <span>Carômetro Escolar</span>
-      </div>
     }
     @if (authService.estaLogado()) {
       @if (authService.perfil()?.tipo === 'escola') {
