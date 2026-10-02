@@ -1,0 +1,75 @@
+<section class="panel">
+  <div class="panel-heading">
+    <span class="icon-badge icon-orange">P</span>
+    <div>
+      <span class="eyebrow">EQUIPE ESCOLAR</span>
+      <h2>Cadastrar professor</h2>
+    </div>
+  </div>
+  <form (ngSubmit)="cadastrar()">
+    <label>
+      Nome completo
+<section class="panel">
+  <div class="panel-heading">
+    <span class="icon-badge icon-orange">P</span>
+    <div>
+      <span class="eyebrow">EQUIPE ESCOLAR</span>
+      <h2>Cadastrar professor</h2>
+    </div>
+  </div>
+  <form (ngSubmit)="cadastrar()">
+    <label>
+      Nome completo
+      <input name="nome" type="text" [(ngModel)]="form.nome_completo" maxlength="200"
+      placeholder="Digite o nome completo"
+      required />
+    </label>
+    <div class="form-row">
+      <label>
+        E-mail (login de acesso)
+        <input name="email" type="email" [(ngModel)]="form.email" placeholder="professor@escola.com" required />
+      </label>
+      <label>
+        Matrícula funcional (opcional)
+        <input name="matricula" type="text" [(ngModel)]="form.matricula_funcional"
+        maxlength="50"
+        placeholder="Digite a matrícula funcional" />
+      </label>
+    </div>
+    <div class="form-row">
+      <label>
+        Senha de acesso (mínimo 6 caracteres)
+        <input name="senha" type="password" [(ngModel)]="form.senha" minlength="6"
+          autocomplete="new-password" placeholder="Defina a senha inicial" required />
+      </label>
+      <label>
+        Confirmar senha
+        <input name="confirmacao" type="password" [(ngModel)]="form.confirmacao_senha" minlength="6"
+          autocomplete="new-password" placeholder="Repita a senha inicial" required />
+      </label>
+    </div>
+    <app-photo-picker label="Foto do professor (obrigatória)" [(photo)]="foto" />
+    <fieldset>
+      <legend>Turmas do professor</legend>
+      <div class="class-options">
+        @for (turma of turmas(); track turma.id) {
+          <label class="checkbox-option">
+            <input type="checkbox"
+              [checked]="turmasSelecionadas.includes(turma.id)"
+              (change)="onTurmaChange(turma.id, $event)"
+            />
+            <span>{{ turma.serie }} · {{ turma.nome }} · {{ turma.ano }}</span>
+          </label>
+        } @empty {
+          <span class="empty-state">Nenhuma turma ativa disponível.</span>
+        }
+      </div>
+    </fieldset>
+    @if (erro()) {
+      <div class="notice notice-error" role="alert">{{ erro() }}</div>
+    }
+    <button class="button button-primary" type="submit" [disabled]="turmas().length === 0">
+      Cadastrar professor
+    </button>
+  </form>
+</section>

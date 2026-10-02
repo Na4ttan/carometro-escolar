@@ -1,0 +1,120 @@
+<section class="consultation">
+  <div class="consultation-heading">
+    <div>
+      <span class="eyebrow">PESQUISA</span>
+      <h2>Consultar cadastros</h2>
+      <p>Encontre alunos e professores da sua escola usando os filtros abaixo.</p>
+    </div>
+    <button class="button button-quiet" type="button" (click)="limparFiltros()">
+      Limpar filtros
+    </button>
+  </div>
+
+  <div class="panel search-panel">
+    @if (perfil()?.tipo === 'escola') {
+      <label>
+        Tipo de cadastro
+        <select name="consultaTipo" [ngModel]="tipoConsulta()" (ngModelChange)="tipoConsulta.set($event)">
+          <option value="todos">Alunos e professores</option>
+          <option value="alunos">Somente alunos</option>
+          <option value="professores">Somente professores</option>
+        </select>
+      </label>
+    }
+    <label>
+      Nome ou matrícula
+      <input
+        name="consultaTermo"
+        type="search"
+        [ngModel]="filtro()"
+        (ngModelChange)="filtro.set($event)"
+        placeholder="Digite para buscar..."
+      />
+    </label>
+    <label>
+      Turma
+      <select name="consultaTurma" [ngModel]="turmaId()" (ngModelChange)="turmaId.set($event)">
+        <option value="">Todas as turmas</option>
+        @for (turma of turmas(); track turma.id) {
+          <option [value]="turma.id">{{ turma.serie }} · {{ turma.nome }} · {{ turma.ano }}</option>
+        }
+      </select>
+    </label>
+  </div>
+
+  @if (tipoConsulta() !== 'professores') {
+    <section class="results-section">
+      <div class="list-heading">
+        <div>
+          <span class="eyebrow">ESTUDANTES</span>
+          <h2>Alunos encontrados</h2>
+        </div>
+        <span class="count">{{ alunosFiltrados().length }}</span>
+      </div>
+      @if (alunosFiltrados().length > 0) {
+        <div class="results-grid">
+          @for (aluno of alunosFiltrados(); track aluno.id) {
+            <article class="person-card">
+              @if (aluno.foto) {
+                <img class="result-photo" [src]="aluno.foto" [alt]="'Foto de ' + aluno.nome_completo" />
+              } @else {
+                <span class="result-photo photo-fallback avatar-blue">
+                  {{ aluno.nome_completo.charAt(0) }}
+                </span>
+              }
+              <div class="result-details">
+                <h3>{{ aluno.nome_social || aluno.nome_completo }}</h3>
+                @if (aluno.nome_social) {
+                  <span>{{ aluno.nome_completo }}</span>
+                }
+                <small>{{ aluno.turma_nome || 'Sem turma' }}</small>
+                @if (aluno.matricula) {
+                  <small>Matrícula: {{ aluno.matricula }}</small>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      } @else {
+        <p class="empty-state">Nenhum aluno corresponde aos filtros informados.</p>
+      }
+    </section>
+  }
+
+  @if (perfil()?.tipo === 'escola' && tipoConsulta() !== 'alunos') {
+    <section class="results-section">
+      <div class="list-heading">
+        <div>
+          <span class="eyebrow">EQUIPE ESCOLAR</span>
+          <h2>Professores encontrados</h2>
+        </div>
+        <span class="count">{{ professoresFiltrados().length }}</span>
+      </div>
+      @if (professoresFiltrados().length > 0) {
+        <div class="results-grid">
+          @for (professor of professoresFiltrados(); track professor.id) {
+            <article class="person-card">
+              @if (professor.foto) {
+                <img class="result-photo" [src]="professor.foto" [alt]="'Foto de ' + professor.nome_completo" />
+              } @else {
+                <span class="result-photo photo-fallback avatar-orange">
+                  {{ professor.nome_completo.charAt(0) }}
+                </span>
+              }
+              <div class="result-details">
+                <h3>{{ professor.nome_completo }}</h3>
+                @if (professor.email) { <small>{{ professor.email }}</small> }
+                <small>{{ professor.turmas_nomes?.join(', ') || 'Sem turma' }}</small>
+                @if (professor.matricula_funcional) {
+                  <small>Matrícula: {{ professor.matricula_funcional }}</small>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      } @else {
+        <p class="empty-state">Nenhum professor corresponde aos filtros informados.</p>
+      }
+    </section>
+  }
+</section>
