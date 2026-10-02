@@ -20,7 +20,9 @@
   <form (ngSubmit)="cadastrar()">
     <label>
       Nome completo
-      <input name="nome" type="text" [(ngModel)]="form.nome_completo" maxlength="200" required />
+      <input name="nome" type="text" [(ngModel)]="form.nome_completo" maxlength="200"
+      placeholder="Digite o nome completo"
+      required />
     </label>
     <div class="form-row">
       <label>
@@ -29,7 +31,9 @@
       </label>
       <label>
         Matrícula funcional (opcional)
-        <input name="matricula" type="text" [(ngModel)]="form.matricula_funcional" maxlength="50" />
+        <input name="matricula" type="text" [(ngModel)]="form.matricula_funcional"
+        maxlength="50"
+        placeholder="Digite a matrícula funcional" />
       </label>
     </div>
     <div class="form-row">

@@ -18,12 +18,15 @@
   <form (ngSubmit)="cadastrar()">
     <label>
       Nome completo
-      <input name="nome" type="text" [(ngModel)]="form.nome_completo" maxlength="200" required />
+      <input name="nome" type="text" [(ngModel)]="form.nome_completo" maxlength="200"
+      placeholder="Digite o nome completo"
+      required />
     </label>
     <div class="form-row">
       <label>
         Nome social (opcional)
-        <input name="nomeSocial" type="text" [(ngModel)]="form.nome_social" maxlength="200" />
+        <input name="nomeSocial" type="text" [(ngModel)]="form.nome_social" maxlength="200"
+        placeholder="Digite o nome social" />
       </label>
       <label>
         Data de nascimento (opcional)
@@ -33,7 +36,8 @@
     <div class="form-row">
       <label>
         Matrícula (opcional)
-        <input name="matricula" type="text" [(ngModel)]="form.matricula" maxlength="50" />
+        <input name="matricula" type="text" [(ngModel)]="form.matricula" maxlength="50"
+        placeholder="Digite a matrícula" />
       </label>
       <label>
         Turma
