@@ -22,7 +22,13 @@ export class LoginComponent {
     this.authService.login(this.username(), this.password()).subscribe({
       next: ({ token }) => {
         this.authService.salvarToken(token);
-        this.router.navigate(['/inicio']);
+        this.authService.carregarPerfil().subscribe({
+          next: (perfil) => {
+            this.authService.perfil.set(perfil);
+            this.router.navigate([perfil.tipo === 'professor' ? '/consulta' : '/inicio']);
+          },
+          error: () => this.erro.set('Não foi possível carregar o perfil.')
+        });
       },
       error: () => this.erro.set('Usuário ou senha inválidos')
     });
