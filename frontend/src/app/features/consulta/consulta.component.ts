@@ -31,18 +31,27 @@ export class ConsultaComponent implements OnInit {
   filtro = signal('');
   turmaId = signal('');
 
-  alunosFiltrados = computed(() =>
-    this.alunos().filter(a =>
-      a.nome_completo.toLowerCase().includes(this.filtro().toLowerCase())
-    )
-  );
+  alunosFiltrados = computed(() => {
+    const termo = this.filtro().trim().toLocaleLowerCase('pt-BR');
+    const turmaId = this.turmaId() ? Number(this.turmaId()) : null;
+    return this.alunos().filter(a => {
+      const correspondeTexto = !termo || [
+        a.nome_completo,
+        a.nome_social ?? '',
+        a.matricula ?? '',
+      ].some(v => v.toLocaleLowerCase('pt-BR').includes(termo));
+      return correspondeTexto && (!turmaId || a.turma_id === turmaId);
+    });
+  });
 
   professoresFiltrados = computed(() => {
     const termo = this.filtro().trim().toLocaleLowerCase('pt-BR');
-    return this.professores().filter(p =>
-      !termo || [p.nome_completo, p.email ?? '']
-        .some(v => v.toLocaleLowerCase('pt-BR').includes(termo))
-    );
+    const turmaId = this.turmaId() ? Number(this.turmaId()) : null;
+    return this.professores().filter(p => {
+      const correspondeTexto = !termo || [p.nome_completo, p.email ?? '']
+        .some(v => v.toLocaleLowerCase('pt-BR').includes(termo));
+      return correspondeTexto && (!turmaId || p.turmas_ids.includes(turmaId));
+    });
   });
 
   turmasFiltradas = computed(() => {
