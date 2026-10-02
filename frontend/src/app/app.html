@@ -1,9 +1,21 @@
 <main class="page">
   <header class="topbar">
-    <a class="brand" routerLink="/" aria-label="Carômetro Escolar - início">
-      <span class="brand-mark">C</span>
-      <span>carômetro escolar</span>
-    </a>
+    @if (authService.perfil()?.tipo === 'escola') {
+      <a class="brand" routerLink="/inicio" aria-label="Carômetro Escolar - início">
+        <span class="brand-mark">C</span>
+        <span>Carômetro Escolar</span>
+      </a>
+    } @else if (authService.perfil()?.tipo === 'professor') {
+      <a class="brand" routerLink="/consulta" aria-label="Carômetro Escolar - início">
+        <span class="brand-mark">C</span>
+        <span>Carômetro Escolar</span>
+      </a>
+    } @else {
+      <div class="brand" aria-label="Carômetro Escolar - início">
+        <span class="brand-mark">C</span>
+        <span>Carômetro Escolar</span>
+      </div>
+    }
     @if (authService.estaLogado()) {
       @if (authService.perfil()?.tipo === 'escola') {
         <nav class="main-nav" aria-label="Navegação principal">
