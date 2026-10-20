@@ -1,19 +1,13 @@
 """
-URL configuration for config project.
+Configuração Principal de Rotas (URLs) do Projeto Carômetro.
 
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/6.1/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+Este arquivo centraliza o roteamento de toda a aplicação:
+1. /admin/ : Painel administrativo oficial do Django.
+2. /api/   : Endpoints REST divididos por domínio (autenticação, acadêmico, comunidade).
+3. /media/ : Servimento das fotos processadas de alunos e professores em modo DEBUG.
+4. /*      : Roteamento SPA (Single Page Application) servindo a distribuição Angular compilada.
 """
+
 from pathlib import Path
 from django.contrib import admin
 from django.conf import settings
@@ -21,10 +15,18 @@ from django.urls import path, re_path, include
 from django.views.static import serve
 from django.http import HttpResponse
 
+# Caminho absoluto para a pasta onde o build de produção do Angular é gerado ('dist/frontend/browser')
 FRONTEND_DIR = settings.BASE_DIR.parent / "frontend" / "dist" / "frontend" / "browser"
 
 
 def serve_frontend(request, path=""):
+    """
+    Controlador para servir a aplicação Angular (Single Page Application):
+    - Se o arquivo físico solicitado existir (ex: .js, .css, imagens), serve diretamente.
+    - Se for uma rota de navegação do frontend (ex: /login, /consulta), devolve o index.html,
+      permitindo que o roteador do Angular assuma o controle no navegador.
+    - Se o frontend ainda não tiver sido compilado com 'npm run build', orienta o desenvolvedor.
+    """
     if not FRONTEND_DIR.exists():
         return HttpResponse(
             "Frontend não compilado. Execute 'npm run build' na pasta frontend.",
@@ -36,25 +38,28 @@ def serve_frontend(request, path=""):
     return serve(request, "index.html", document_root=str(FRONTEND_DIR))
 
 
+# Rotas primárias do sistema
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include('core.urls')),
+    # Painel Administrativo do Django
+    path("admin/", admin.site.urls),
+
+    # APIs REST modularizadas por domínio sob o prefixo /api/
+    path("api/", include("apps.autenticacao.urls")),
+    path("api/", include("apps.academico.urls")),
+    path("api/", include("apps.comunidade.urls")),
 ]
 
+# Em ambiente de desenvolvimento (DEBUG=True), o Django serve as fotos salvas em MEDIA_ROOT
 if settings.DEBUG:
     urlpatterns += [
-        path(
-            "media/alunos/<path:path>",
+        re_path(
+            r"^media/(?P<path>.*)$",
             serve,
-            {"document_root": settings.BASE_DIR / "alunos"},
-        ),
-        path(
-            "media/professores/<path:path>",
-            serve,
-            {"document_root": settings.BASE_DIR / "professores"},
+            {"document_root": settings.MEDIA_ROOT},
         ),
     ]
 
+# Rota 'catch-all' (deve ser a última da lista): qualquer URL não capturada acima é entregue ao Angular
 urlpatterns += [
     path("", serve_frontend, {"path": ""}),
     re_path(r"^(?P<path>.*)$", serve_frontend),

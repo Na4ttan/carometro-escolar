@@ -13,8 +13,6 @@
 .idea/
 .vscode/
 
-# Media uploads
-/backend/alunos/*
-!/backend/alunos/.gitkeep
-/backend/professores/*
-!/backend/professores/.gitkeep
+# Media uploads (protege fotos de alunos e professores)
+/backend/media/*
+!/backend/media/.gitkeep

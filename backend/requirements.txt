@@ -1,0 +1,6 @@
+Django>=5.0
+djangorestframework>=3.14
+django-cors-headers>=4.3
+pillow>=10.0
+opencv-python-headless>=4.8
+numpy>=1.24

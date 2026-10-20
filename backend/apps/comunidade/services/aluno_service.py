@@ -1,0 +1,110 @@
+"""
+Camada de Serviços (Service Layer) para Alunos.
+
+Centraliza toda a lógica de negócio cadastral de alunos:
+1. Validação de regras de negócio (duplicidade de matrícula, pertencimento da turma à escola).
+2. Orquestração de persistência transacional atômica (@transaction.atomic).
+3. Enfileiramento do processamento facial inteligente em segundo plano.
+"""
+
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.db import transaction
+
+from apps.academico.models import Turma
+from apps.comunidade.models import Aluno, Matricula
+from apps.processamento.async_worker import enfileirar_processamento_aluno
+
+
+class AlunoService:
+    """
+    Serviço que encapsula regras de negócio do aluno.
+    Isola os Models e Views do acoplamento direto com validações complexas.
+    """
+
+    @classmethod
+    def validar_matricula(cls, matricula, aluno_id=None):
+        """
+        Garante que o código de matrícula seja único na base de dados.
+        Se aluno_id for fornecido (edição), ignora o próprio registro.
+        """
+        if not matricula:
+            return
+        query = Aluno.objects.filter(matricula=matricula)
+        if aluno_id:
+            query = query.exclude(id=aluno_id)
+        if query.exists():
+            raise ValidationError({"matricula": "Já existe um aluno cadastrado com este número de matrícula."})
+
+    @classmethod
+    def validar_turma(cls, turma, escola=None):
+        """
+        Valida a consistência da turma selecionada:
+        - Deve existir e estar ativa, assim como seu ano letivo.
+        - Se a escola do gestor for fornecida, garante que a turma pertence a ela.
+        """
+        if not turma:
+            raise ValidationError({"turma": "É necessário informar uma turma."})
+
+        if isinstance(turma, int):
+            try:
+                turma = Turma.objects.select_related("ano_letivo__escola").get(id=turma)
+            except Turma.DoesNotExist:
+                raise ValidationError({"turma": "Turma informada não foi encontrada."})
+
+        if not turma.ativo or not turma.ano_letivo.ativo:
+            raise ValidationError({"turma": "A turma informada ou seu ano letivo estão inativos."})
+
+        if escola and turma.ano_letivo.escola_id != escola.id:
+            raise ValidationError({"turma": "A turma informada não pertence à sua escola."})
+
+        return turma
+
+    @classmethod
+    @transaction.atomic
+    def criar_aluno(cls, dados, turma, escola=None):
+        """
+        Fluxo completo de criação do Aluno em transação atômica:
+        1. Valida a turma e a matrícula.
+        2. Instancia e salva o Aluno com a foto original enviada pelo usuário.
+        3. Cria o vínculo de Matrícula ativa com a Turma.
+        4. Enfileira o processamento pesado de corte e detecção facial (OpenCV)
+           em background worker, respondendo imediatamente a requisição HTTP.
+        """
+        turma_obj = cls.validar_turma(turma, escola=escola)
+        matricula_val = dados.get("matricula")
+        cls.validar_matricula(matricula_val)
+
+        foto = dados.get("foto")
+        aluno = Aluno(
+            nome_completo=dados.get("nome_completo"),
+            nome_social=dados.get("nome_social") or "",
+            data_nascimento=dados.get("data_nascimento"),
+            matricula=matricula_val or None,
+            foto=foto,
+            ativo=dados.get("ativo", True),
+        )
+        # Evita enfileiramento duplicado no model.save() já que chamaremos o worker explicitamente
+        aluno._skip_async = True
+        aluno.save()
+
+        # Vincula o aluno à turma com matrícula ativa
+        Matricula.objects.create(
+            aluno=aluno,
+            turma=turma_obj,
+            status=Matricula.Status.ATIVA,
+        )
+
+        # Enfileira o processamento de imagem em background
+        if aluno.foto:
+            enfileirar_processamento_aluno(aluno.id)
+            # Em modo síncrono (ex: suíte de testes), recarrega a instância com a foto processada
+            if not getattr(settings, "CAROMETRO_ASYNC_IMAGE_PROCESSING", True):
+                aluno.refresh_from_db()
+
+        return aluno
+
+
+def criar_aluno(dados, turma, escola=None):
+    """Atalho funcional para AlunoService.criar_aluno."""
+    return AlunoService.criar_aluno(dados, turma=turma, escola=escola)

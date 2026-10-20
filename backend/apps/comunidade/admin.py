@@ -1,18 +1,25 @@
+"""
+Painel Administrativo do Domínio de Comunidade Escolar.
+
+Configuração do Django Admin para Aluno, Matrícula e Professor.
+Permite aos administradores de suporte redefinirem senhas de professores de forma transparente,
+criptografando o novo hash e sincronizando com a conta de autenticação do Django.
+"""
+
 from django import forms
 from django.contrib import admin
-from django.contrib.auth import get_user_model
 
-from .models import Aluno, AnoLetivo, Escola, Matricula, Professor, Turma
-
-
-@admin.register(Escola)
-class EscolaAdmin(admin.ModelAdmin):
-    list_display = ("nome", "cnpj", "usuario", "ativo")
-    search_fields = ("nome", "cnpj", "usuario__username")
-    list_filter = ("ativo",)
+from apps.comunidade.services.professor_service import ProfessorService
+from .models import Aluno, Matricula, Professor
 
 
 class ProfessorAdminForm(forms.ModelForm):
+    """
+    Formulário customizado para o cadastro e edição de Professores no Django Admin:
+    - Oculta o campo de hash interno ('senha').
+    - Adiciona campos amigáveis de 'Nova senha' e 'Confirmação de senha' com validação.
+    """
+
     nova_senha = forms.CharField(
         label="Nova senha de acesso",
         required=False,
@@ -46,30 +53,21 @@ class ProfessorAdminForm(forms.ModelForm):
 
 @admin.register(Professor)
 class ProfessorAdmin(admin.ModelAdmin):
+    """Configuração da interface administrativa de Professores."""
+
     form = ProfessorAdminForm
     list_display = ("nome_completo", "email", "matricula_funcional", "usuario", "ativo")
     search_fields = ("nome_completo", "email", "matricula_funcional", "usuario__username")
     list_filter = ("ativo",)
-    exclude = ("senha",)
+    exclude = ("senha",)  # Oculta o hash bruto da visualização
 
     def save_model(self, request, obj, form, change):
+        """Salva o professor e, caso uma nova senha tenha sido digitada, delega à Service Layer."""
         nova_senha = form.cleaned_data.get("nova_senha")
-
-        User = get_user_model()
-        if not obj.usuario and obj.email:
-            user, _ = User.objects.get_or_create(
-                username=obj.email,
-                defaults={"email": obj.email},
-            )
-            obj.usuario = user
-
-        if nova_senha:
-            obj.set_password(nova_senha)
-            if obj.usuario:
-                obj.usuario.set_password(nova_senha)
-                obj.usuario.save()
-
         super().save_model(request, obj, form, change)
+        if nova_senha:
+            ProfessorService.redefinir_senha(obj, nova_senha)
 
 
-admin.site.register((AnoLetivo, Turma, Aluno, Matricula))
+# Registro padrão para Alunos e Matrículas
+admin.site.register((Aluno, Matricula))

@@ -2,19 +2,23 @@
 
 Este é o repositório do sistema de Carômetro Escolar, desenvolvido para facilitar a identificação visual de alunos na portaria e agilizar a rotina dos professores. 
 
-O projeto utiliza uma arquitetura modular:
-- **Backend (API + Servidor Web):** Python com Django e Django REST Framework.
+O projeto utiliza uma **arquitetura modular por domínios de negócio**:
+- **Backend (API REST + Servidor Web):** Python com Django e Django REST Framework estruturado em apps especializados:
+  - `apps.autenticacao`: Gestão de acessos, tokens, perfis (escola/professor) e permissões.
+  - `apps.academico`: Gestão da escola, anos letivos e turmas.
+  - `apps.comunidade`: Gestão cadastral de alunos, professores e matrículas escolares com paginação e busca otimizada.
+  - `apps.processamento`: Visão computacional com OpenCV, enquadramento facial inteligente, redimensionamento (500x500) e worker assíncrono em segundo plano.
 - **Frontend (Web/Mobile):** Angular.
 
 ---
 
-## 🛠️ 1. Pré-requisitos
+## 🛠️ 1. Preparação do ambiente
 
-Antes de baixar o projeto, certifique-se de ter as seguintes ferramentas instaladas na sua máquina:
+No Windows 10/11, depois de baixar ou clonar o projeto, execute **`preparar_windows.bat`** na pasta principal. O arquivo instala Python 3.12, Node.js LTS e Git pelo `winget` (se estiverem faltando), cria o ambiente virtual, instala as dependências, aplica as migrações do banco local e compila o frontend. Se ele instalar alguma ferramenta, feche a janela e execute o arquivo novamente para concluir a preparação.
 
-1. **Python (3.10 ou superior):** [Baixar Python](https://www.python.org/downloads/) (No Windows, lembre-se de marcar a caixa "Add Python to PATH" durante a instalação).
-2. **Node.js (versão LTS):** [Baixar Node.js](https://nodejs.org/) (Ele inclui o gerenciador de pacotes `npm` e o executor `npx`).
-3. **Git:** [Baixar Git](https://git-scm.com/downloads).
+O Windows precisa ter o **Instalador de Aplicativos** atualizado para disponibilizar o `winget`. Se ele não estiver disponível, instale manualmente Python 3.12, Node.js LTS e Git pelos sites oficiais e execute `preparar_windows.bat` novamente.
+
+No Linux ou macOS, instale Python 3.10 ou superior, Node.js LTS e Git manualmente; as instruções de criação do ambiente e instalação de dependências estão nas seções abaixo.
 
 ---
 
@@ -38,7 +42,7 @@ Abra um terminal, acesse a pasta do backend e crie o ambiente virtual para isola
 cd backend
 ```
 
-2. Crie o ambiente virtual:
+2. Crie o ambiente virtual (no Windows, o `preparar_windows.bat` já faz esta etapa):
 
 ```bash
 python -m venv venv
@@ -59,13 +63,14 @@ source venv/bin/activate
 ```
 *(Você saberá que deu certo se aparecer um `(venv)` no início da linha do terminal)*
 
-4. Instale as dependências:
+4. Instale as dependências (também feito pelo preparador no Windows):
 
 ```bash
-pip install django djangorestframework django-cors-headers pillow
+pip install -r requirements.txt
 ```
+*(ou: `pip install django djangorestframework django-cors-headers pillow opencv-python-headless numpy`)*
 
-5. Aplique as migrações no banco de dados:
+5. Aplique as migrações no banco de dados (também feito pelo preparador no Windows):
 
 ```bash
 python manage.py migrate
@@ -82,13 +87,13 @@ Abra um terminal na pasta do frontend:
 cd frontend
 ```
 
-2. Instale as dependências locais:
+2. Instale as dependências locais (também feito pelo preparador no Windows):
 
 ```bash
 npm install
 ```
 
-3. Compile a versão de distribuição para o Django servir:
+3. Compile a versão de distribuição para o Django servir (também feito pelo preparador no Windows):
 
 ```bash
 npm run build
@@ -238,6 +243,50 @@ Agora que a estrutura está pronta no Django Admin, **não é mais necessário u
    - Selecionar suas turmas atribuídas.
    - Ver a lista com fotos e nomes dos alunos matriculados nas suas turmas para identificação e acompanhamento diário.
    - O professor tem acesso somente de consulta, garantindo a segurança dos dados.
+
+---
+
+### ⚡ 8. Paginação, Busca Otimizada e Prevenção de N+1 Queries
+
+As rotas `/api/alunos/` e `/api/professores/` possuem recursos avançados para suportar escolas de grande porte:
+- **Paginação:**
+  - Padrão: 20 registros por página (`?page=1`).
+  - Tamanho configurável: `?page_size=50` (limite máximo: 100).
+  - Bypass explícito: `?sem_paginacao=true` (retorna a lista completa).
+- **Busca em Banco de Dados (`?search=`):**
+  - Alunos: busca por `nome_completo`, `nome_social` e `matricula`.
+  - Professores: busca por `nome_completo`, `email` e `matricula_funcional`.
+- **Filtro Direto por Turma (`?turma=`):**
+  - Permite consultar apenas alunos ou professores de uma turma específica diretamente no banco de dados.
+- **Eliminação de Consultas N+1:**
+  - Utilização de `Prefetch` com carregamento conjunto de matrículas ativas e turmas, reduzindo o volume de consultas SQL de dezenas para apenas 2 queries por requisição.
+
+---
+
+### 🔄 9. Processamento Assíncrono de Imagens em Segundo Plano (Escalabilidade)
+
+Para garantir que uploads de imagens em alta resolução (ex: 15MB capturados em smartphones modernos) não travem nem atrasem a resposta da requisição HTTP:
+- **Resposta HTTP Instantânea (<100ms):** Ao cadastrar um aluno ou professor, o registro e a imagem inicial são persistidos imediatamente e a API retorna sucesso ao usuário de forma transparente.
+- **Worker em Segundo Plano (`async_worker.py`):** O processamento pesado de visão computacional (OpenCV Haar Cascade, cálculo de rotação, preservação de cores ICC e recorte 500x500) é delegado a um pool de threads gerenciado pelo backend (`ThreadPoolExecutor`).
+- **Segurança Transacional com `transaction.on_commit`:** O worker só inicia o processamento do arquivo após o banco de dados confirmar a transação atômica (`commit`), evitando condições de corrida (*race conditions*).
+
+---
+
+### 📷 Processamento Inteligente das Imagens do Carômetro (500x500)
+
+O backend possui processamento inteligente de imagens automatizado no momento em que qualquer Aluno ou Professor é salvo:
+- **Resolução Padronizada:** Todas as fotos são salvas em **500px na horizontal × 500px na vertical (500x500)**.
+- **Detecção Facial e Enquadramento Real (OpenCV):** Identifica as coordenadas do rosto e centraliza o enquadramento na face (com margem natural superior de ~40%), garantindo que avatares circulares no Carômetro não cortem a testa nem o topo da cabeça.
+- **Recuperação de Rotação Sem EXIF:** Além de ler a orientação EXIF de smartphones, caso os metadados tenham sido removidos (ex: fotos capturadas via canvas do navegador ou apps de mensagem), o sistema testa rotações (90°, 180°, 270°) e endireita a imagem automaticamente se detectar o rosto em outra orientação.
+- **Preservação de Transparência:** Imagens PNG com canal alfa preservam o fundo transparente (salvas em `.png`), evitando o fundo branco sólido indesejado.
+- **Fidelidade de Cores (ICC Profiles):** Preserva perfis de cores embutidos (Display P3, sRGB) para manter tons de pele e saturação originais.
+
+Para reprocessar todas as fotos cadastradas no banco de dados via terminal:
+```bash
+cd backend
+source venv/bin/activate
+python manage.py redimensionar_fotos
+```
 
 ---
 
