@@ -12,13 +12,17 @@ O projeto utiliza uma **arquitetura modular por domínios de negócio**:
 
 ---
 
-## 🛠️ 1. Preparação do ambiente
+## 🛠️ 1. Pré-requisitos e preparação do ambiente
 
-No Windows 10/11, depois de baixar ou clonar o projeto, execute **`preparar_windows.bat`** na pasta principal. O arquivo instala Python 3.12, Node.js LTS e Git pelo `winget` (se estiverem faltando), cria o ambiente virtual, instala as dependências, aplica as migrações do banco local e compila o frontend. Se ele instalar alguma ferramenta, feche a janela e execute o arquivo novamente para concluir a preparação.
+Antes de baixar o projeto, instale estas ferramentas:
 
-O Windows precisa ter o **Instalador de Aplicativos** atualizado para disponibilizar o `winget`. Se ele não estiver disponível, instale manualmente Python 3.12, Node.js LTS e Git pelos sites oficiais e execute `preparar_windows.bat` novamente.
+1. **Python 3.12:** [python.org/downloads](https://www.python.org/downloads/). Durante a instalação no Windows, marque **Add Python to PATH**.
+2. **Node.js LTS:** [nodejs.org](https://nodejs.org/). O instalador também inclui `npm` e `npx`.
+3. **Git:** [git-scm.com/downloads](https://git-scm.com/downloads).
 
-No Linux ou macOS, instale Python 3.10 ou superior, Node.js LTS e Git manualmente; as instruções de criação do ambiente e instalação de dependências estão nas seções abaixo.
+Depois de clonar o repositório, abra o **Prompt de Comando (CMD)** na pasta do projeto e siga as etapas das seções 3 e 4 para configurar o backend e o frontend. Não é necessário executar `preparar_windows.bat`.
+
+No Linux ou macOS, instale Python 3.10 ou superior, Node.js LTS e Git manualmente e siga as instruções das seções abaixo.
 
 ---
 
@@ -42,7 +46,7 @@ Abra um terminal, acesse a pasta do backend e crie o ambiente virtual para isola
 cd backend
 ```
 
-2. Crie o ambiente virtual (no Windows, o `preparar_windows.bat` já faz esta etapa):
+2. Crie o ambiente virtual:
 
 ```bash
 python -m venv venv
@@ -50,10 +54,10 @@ python -m venv venv
 
 3. Ative o ambiente virtual:
 
-No Windows (Command Prompt / PowerShell):
+No Windows (Prompt de Comando / CMD):
 
 ```bash
-venv\Scripts\activate
+venv\Scripts\activate.bat
 ```
 
 No Linux / Mac:
@@ -63,14 +67,13 @@ source venv/bin/activate
 ```
 *(Você saberá que deu certo se aparecer um `(venv)` no início da linha do terminal)*
 
-4. Instale as dependências (também feito pelo preparador no Windows):
+4. Instale as dependências:
 
 ```bash
 pip install -r requirements.txt
 ```
-*(ou: `pip install django djangorestframework django-cors-headers pillow opencv-python-headless numpy`)*
 
-5. Aplique as migrações no banco de dados (também feito pelo preparador no Windows):
+5. Aplique as migrações no banco de dados:
 
 ```bash
 python manage.py migrate
@@ -87,13 +90,13 @@ Abra um terminal na pasta do frontend:
 cd frontend
 ```
 
-2. Instale as dependências locais (também feito pelo preparador no Windows):
+2. Instale as dependências locais:
 
 ```bash
-npm install
+npm ci
 ```
 
-3. Compile a versão de distribuição para o Django servir (também feito pelo preparador no Windows):
+3. Compile a versão de distribuição para o Django servir:
 
 ```bash
 npm run build
