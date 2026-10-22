@@ -1,3 +1,17 @@
+.login-layout {
+  min-height: calc(100vh - 140px);
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  align-items: center;
+  gap: 70px;
+  max-width: 1000px;
+  margin: auto;
+}
+
+.login-panel {
+  padding: 32px;
+}
+
 .panel-heading {
   display: flex;
   flex-direction: column;
@@ -28,4 +42,18 @@
   font-size: clamp(36px, 5vw, 56px);
   line-height: 1.1;
   letter-spacing: -2px;
+}
+
+.intro p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+@media (max-width: 820px) {
+  .login-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    max-width: 500px;
+    padding: 50px 0;
+  }
 }

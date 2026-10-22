@@ -20,6 +20,10 @@
   font-size: 14px;
 }
 
+.search-field {
+  margin-top: 12px;
+}
+
 .search-panel {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
