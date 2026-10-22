@@ -9,8 +9,8 @@ import { PhotoPickerComponent } from '../../shared/components/photo-picker/photo
   selector: 'app-professor-form',
   standalone: true,
   imports: [FormsModule, PhotoPickerComponent],
-  templateUrl: 'professor-form.component.html',
-  styleUrls: ['professor-form.component.css'],
+  templateUrl: './professor-form.component.html',
+  styleUrl: './professor-form.component.css',
 })
 export class ProfessorFormComponent implements OnInit {
   private turmaService = inject(TurmaService);

@@ -14,7 +14,7 @@ import { ProfessorFormComponent } from '../professor-form/professor-form.compone
   standalone: true,
   imports: [AlunoFormComponent, ProfessorFormComponent],
   templateUrl: './inicio.component.html',
-  styleUrl: 'inicio.component.css',
+  styleUrl: './inicio.component.css',
 })
 export class InicioComponent implements OnInit {
   private authService = inject(AuthService);
