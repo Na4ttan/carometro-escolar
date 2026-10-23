@@ -12,7 +12,7 @@ O projeto utiliza uma arquitetura modular:
 
 Antes de baixar o projeto, certifique-se de ter as seguintes ferramentas instaladas na sua máquina:
 
-1. **Python (3.10 ou superior):** [Baixar Python](https://www.python.org/downloads/) (No Windows, lembre-se de marcar a caixa "Add Python to PATH" durante a instalação).
+1. **Python 3.12 ou superior:** [Baixar Python](https://www.python.org/downloads/) (No Windows, lembre-se de marcar a caixa "Add Python to PATH" durante a instalação).
 2. **Node.js (versão LTS):** [Baixar Node.js](https://nodejs.org/) (Ele inclui o gerenciador de pacotes `npm` e o executor `npx`).
 3. **Git:** [Baixar Git](https://git-scm.com/downloads).
 
@@ -62,7 +62,7 @@ source venv/bin/activate
 4. Instale as dependências:
 
 ```bash
-pip install django djangorestframework django-cors-headers pillow
+pip install -r ../requirements.txt
 ```
 
 5. Aplique as migrações no banco de dados:
@@ -70,6 +70,45 @@ pip install django djangorestframework django-cors-headers pillow
 ```bash
 python manage.py migrate
 ```
+
+### PostgreSQL no Render
+
+Localmente, o projeto usa SQLite quando `DATABASE_URL` não está definida. No Render, ele exige `DATABASE_URL` e usa PostgreSQL. As dependências do driver e do servidor web estão no `requirements.txt` da raiz.
+
+#### 1. Criar o banco
+
+1. Entre no [painel do Render](https://dashboard.render.com/).
+2. Clique em **New +** e escolha **PostgreSQL**.
+3. Dê um nome ao banco, por exemplo `carometro-db`.
+4. Escolha uma região e use a mesma região do serviço web Django.
+5. Selecione o plano e clique em **Create Database**. Aguarde o estado ficar disponível.
+
+O plano gratuito é apenas para testes: o banco tem limite de 1 GB, não inclui backups e expira após 30 dias. Não o use para guardar dados reais da escola. Consulte os [limites atuais do plano gratuito do Render](https://render.com/docs/free).
+
+#### 2. Conectar o serviço Django ao banco
+
+1. Abra a página do banco PostgreSQL e clique em **Connect**.
+2. Copie o **Internal Database URL**. Ele é destinado a serviços Render na mesma região e contém usuário e senha; não o publique, não o envie por mensagem e não o salve no Git.
+3. Abra o serviço web Django no Render. Em **Environment**, adicione `DATABASE_URL` e informe essa URL. Se o painel oferecer a opção de vincular uma variável ao banco, use-a para preencher `DATABASE_URL` automaticamente.
+4. Adicione também `SECRET_KEY` como variável secreta usando o gerador do Render.
+5. Defina `DEBUG` como `false`.
+
+O Render fornece URLs internas para os serviços na mesma região, evitando que a conexão passe pela internet pública. Veja a documentação de [criação e conexão ao PostgreSQL do Render](https://render.com/docs/postgresql-creating-connecting).
+
+#### 3. Configurar os comandos do serviço web
+
+Deixe **Root Directory** vazio, para que os comandos iniciem na pasta principal do repositório. Configure:
+
+- **Build Command:** `pip install -r requirements.txt`
+- **Start Command:**
+
+```bash
+cd backend && python manage.py migrate --noinput && python -m gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
+```
+
+O comando de inicialização aplica as migrações para criar as tabelas e depois inicia o Django com Gunicorn. O deploy ainda precisa compilar o Angular para que o Django encontre `frontend/dist/frontend/browser`; veja a seção 4.
+
+O banco começa vazio. As migrações criam a estrutura, mas não copiam automaticamente os registros do `db.sqlite3` local. As fotos enviadas também são arquivos separados do banco e precisam de armazenamento persistente no deploy.
 
 ---
 
