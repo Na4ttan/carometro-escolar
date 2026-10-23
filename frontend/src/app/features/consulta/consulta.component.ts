@@ -14,6 +14,7 @@ type TipoConsulta = 'todos' | 'alunos' | 'professores';
   selector: 'app-consulta',
   standalone: true,
   templateUrl: './consulta.component.html',
+  styleUrl: './consulta.component.css',
   imports: [FormsModule],
   providers: [AlunoService, ProfessorService, TurmaService, AuthService]
 })
