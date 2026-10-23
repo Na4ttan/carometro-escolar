@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, output, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { TurmaService } from '../../core/services/turma.service';
 import { AlunoService } from '../../core/services/aluno.service';
 import { Turma } from '../../shared/models/turma.model';
@@ -30,7 +30,7 @@ export class AlunoFormComponent implements OnInit {
     this.turmaService.listar().subscribe(lista => this.turmas.set(lista));
   }
 
-  cadastrar() {
+  cadastrar(cadastroForm?: NgForm) {
     this.erro.set('');
     if (!this.foto) { this.erro.set('Selecione ou tire uma foto do aluno.'); return; }
 
@@ -44,9 +44,10 @@ export class AlunoFormComponent implements OnInit {
 
     this.alunoService.cadastrar(payload).subscribe({
       next: (aluno) => {
-        this.alunoAdicionado.emit(aluno.nome_completo);
         this.form = { nome_completo: '', nome_social: '', data_nascimento: '', matricula: '', turma: '' };
         this.foto = null;
+        cadastroForm?.resetForm(this.form);
+        this.alunoAdicionado.emit(aluno.nome_completo);
       },
       error: () => this.erro.set('Não foi possível cadastrar o aluno.'),
     });

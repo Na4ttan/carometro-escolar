@@ -1,0 +1,124 @@
+<section class="tutorial-page">
+  <header class="page-heading">
+    <span class="eyebrow">CENTRAL DE AJUDA</span>
+    <h1>Como usar o Carômetro Escolar</h1>
+    <p>Um guia rápido para organizar os anos letivos, cadastrar a comunidade escolar e consultar os registros.</p>
+  </header>
+
+  <section class="panel intro-panel">
+    <div class="panel-heading">
+      <span class="icon-badge icon-orange">C</span>
+      <div>
+        <span class="eyebrow">ACESSO E NAVEGAÇÃO</span>
+        <h2>O que cada perfil pode fazer</h2>
+      </div>
+    </div>
+    <ul class="care-list">
+      <li>Depois do login da escola, a tela inicial é <strong>Consultar</strong>. O menu também dá acesso ao cadastro de alunos, cadastro de professores, organização de anos e turmas e este tutorial.</li>
+      <li>O professor entra com o e-mail e a senha definidos pela escola. Ele abre o <strong>Carômetro</strong> e consulta os alunos vinculados às suas turmas; não pode cadastrar, editar, arquivar ou excluir registros.</li>
+      <li>A escola administra os cadastros da própria instituição. As ações de edição e gerenciamento não aparecem para o professor e também são protegidas no servidor.</li>
+    </ul>
+  </section>
+
+  <section class="panel intro-panel">
+    <div class="panel-heading">
+      <span class="icon-badge icon-blue">1</span>
+      <div>
+        <span class="eyebrow">PRIMEIROS PASSOS</span>
+        <h2>Prepare a estrutura da escola</h2>
+      </div>
+    </div>
+    <ol class="steps">
+      <li>Em <strong>Anos e turmas</strong>, cadastre o ano letivo e, se for o ano em uso, deixe marcada a opção para defini-lo como vigente.</li>
+      <li>Selecione o ano vigente no seletor dessa tela. Somente um ano por escola fica ativo; os outros continuam cadastrados e podem ser selecionados depois.</li>
+      <li>Cadastre as turmas escolhendo o ano letivo, o nível (Fundamental ou Médio), a série e a identificação da turma (A, B, C…). Informe também o turno e, se necessário, a sala.</li>
+      <li>Na lista de turmas cadastradas, abra <strong>Editar</strong> para corrigir os dados. O pop-up também contém as opções de arquivar, restaurar e excluir. Marque <strong>Incluir arquivadas</strong> para localizar turmas arquivadas.</li>
+    </ol>
+    <p class="tip"><strong>Dica:</strong> cadastre primeiro os anos e as turmas. Eles serão usados nos formulários de alunos e professores.</p>
+  </section>
+
+  <div class="tutorial-grid">
+    <section class="panel">
+      <div class="panel-heading">
+        <span class="icon-badge icon-blue">2</span>
+        <div>
+          <span class="eyebrow">ESTUDANTES</span>
+          <h2>Cadastrar um aluno</h2>
+        </div>
+      </div>
+      <ol class="steps">
+        <li>Abra <strong>Cadastrar aluno</strong> no menu.</li>
+        <li>Informe o nome completo, selecione a turma e preencha os campos opcionais que tiver disponíveis, como nome social, nascimento e matrícula.</li>
+        <li>Adicione uma foto pela câmera ou escolha uma imagem do dispositivo e salve.</li>
+      </ol>
+      <p class="tip">Depois de salvar, o formulário e a foto são limpos para o próximo cadastro.</p>
+    </section>
+
+    <section class="panel">
+      <div class="panel-heading">
+        <span class="icon-badge icon-orange">3</span>
+        <div>
+          <span class="eyebrow">EQUIPE ESCOLAR</span>
+          <h2>Cadastrar um professor</h2>
+        </div>
+      </div>
+      <ol class="steps">
+        <li>Abra <strong>Cadastrar professor</strong> e preencha nome, e-mail e, se houver, matrícula funcional.</li>
+        <li>Defina uma senha inicial com pelo menos 6 caracteres e confirme-a.</li>
+        <li>Selecione todas as turmas em que o professor leciona, adicione a foto e salve.</li>
+      </ol>
+      <p class="tip">O e-mail será o nome de usuário do professor. Oriente-o a guardar a senha com segurança. O formulário é limpo após o cadastro.</p>
+    </section>
+
+    <section class="panel">
+      <div class="panel-heading">
+        <span class="icon-badge icon-blue">4</span>
+        <div>
+          <span class="eyebrow">PESQUISA</span>
+          <h2>Consultar alunos e professores</h2>
+        </div>
+      </div>
+      <ol class="steps">
+        <li>Abra <strong>Consultar</strong>. A escola pode escolher ver alunos e professores juntos ou limitar a consulta a um tipo de cadastro.</li>
+        <li>Escolha o ano letivo, pesquise por nome ou matrícula e, se desejar, filtre por turma. O ano vigente vem selecionado inicialmente.</li>
+        <li>Use <strong>Limpar filtros</strong> para voltar à consulta sem os critérios anteriores.</li>
+        <li>Para alterar um cadastro ativo, abra <strong>Editar</strong> no cartão, ajuste os campos no pop-up e salve. A foto atual é mantida. Para professores, também é possível atualizar as turmas atribuídas; a senha é mantida.</li>
+        <li>Para arquivar um aluno ou professor, abra <strong>Editar</strong> e escolha <strong>Arquivar</strong>. O registro sai da consulta normal, mas seus dados e vínculos são preservados.</li>
+        <li>Para restaurar um registro arquivado, marque <strong>Incluir cadastros arquivados</strong>, abra <strong>Gerenciar</strong> no cartão e escolha <strong>Restaurar</strong>. A restauração é feita no painel da aplicação; não é necessário acessar o banco nem o Django Admin.</li>
+        <li>A opção <strong>Excluir permanentemente</strong> fica no mesmo pop-up. A tela pede confirmação e informa os vínculos que serão apagados. Essa ação não pode ser desfeita.</li>
+      </ol>
+      <p class="tip">O professor entra em <strong>Carômetro</strong> com e-mail e senha. Ele consulta os alunos das turmas atribuídas a ele e pode filtrar pelos anos letivos dessas turmas. O professor não pode editar, arquivar ou excluir registros.</p>
+    </section>
+
+    <section class="panel password-panel">
+      <div class="panel-heading">
+        <span class="icon-badge icon-orange">5</span>
+        <div>
+          <span class="eyebrow">SUPORTE DE ACESSO</span>
+          <h2>Trocar ou redefinir a senha do professor</h2>
+        </div>
+      </div>
+      <p>Se o professor esquecer a senha, um administrador com acesso ao Django Admin pode definir outra:</p>
+      <ol class="steps">
+        <li>Abra o Django Admin no servidor da aplicação, normalmente em <code>http://127.0.0.1:8000/admin/</code>, e entre com a conta de administrador.</li>
+        <li>Acesse <strong>Professores</strong> e abra o cadastro da pessoa.</li>
+        <li>Preencha <strong>Nova senha de acesso</strong> e <strong>Confirmar nova senha</strong> com a mesma senha (mínimo de 6 caracteres).</li>
+        <li>Salve o cadastro e informe a nova senha ao professor por um canal seguro.</li>
+      </ol>
+      <p class="tip">Deixe os campos de senha em branco quando editar outros dados do professor. O sistema mantém a senha atual. A senha é armazenada de forma protegida.</p>
+    </section>
+  </div>
+
+  <section class="panel access-panel">
+    <span class="eyebrow">ACESSO E SEGURANÇA</span>
+    <h2>Cuidados importantes</h2>
+    <ul class="care-list">
+      <li>Não compartilhe o usuário e a senha administrativa do Django. O painel administrativo é destinado a pessoas autorizadas.</li>
+      <li>Confira o ano e a turma selecionados antes de cadastrar estudantes e professores para manter os registros organizados.</li>
+      <li>Ao trocar o ano vigente, os anos anteriores não são apagados; basta selecioná-los nos filtros para consultar seus registros.</li>
+      <li>Na tela <strong>Anos e turmas</strong>, marque <strong>Incluir arquivadas</strong> para localizar turmas arquivadas; abra <strong>Gerenciar</strong> e escolha <strong>Restaurar</strong> para reativá-las.</li>
+      <li>Arquivar é reversível e preserva matrículas e vínculos. Excluir um aluno apaga suas matrículas; excluir uma turma apaga suas matrículas e atribuições de professores; excluir um professor remove também seu login.</li>
+      <li>Use <strong>Sair</strong> ao terminar de usar o painel em um dispositivo compartilhado.</li>
+    </ul>
+  </section>
+</section>

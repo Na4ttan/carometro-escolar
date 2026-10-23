@@ -1,0 +1,211 @@
+<section class="academic-page">
+  <header class="page-heading">
+    <span class="eyebrow">ORGANIZAÇÃO ESCOLAR</span>
+    <h1>Anos letivos e turmas</h1>
+    <p>Cadastre os períodos letivos e organize as turmas da sua escola.</p>
+  </header>
+
+  @if (sucesso()) {
+    <div class="notice notice-success" role="status">{{ sucesso() }}</div>
+  }
+
+  <div class="academic-grid">
+    <section class="panel">
+      <div class="active-year-selector">
+        <label>
+          Ano letivo vigente
+          <select
+            name="anoVigente"
+            [ngModel]="anoVigenteId()"
+            (ngModelChange)="definirAnoVigente($event)"
+            [disabled]="ativandoAno() || anosLetivos().length === 0"
+          >
+            @for (ano of anosLetivos(); track ano.id) {
+              <option [value]="ano.id">{{ ano.ano }}{{ ano.ativo ? ' · Vigente' : '' }}</option>
+            }
+          </select>
+        </label>
+        @if (ativandoAno()) {
+          <span class="active-year-status">Ativando ano letivo…</span>
+        } @else {
+          <span class="active-year-status">A alteração mantém os demais anos cadastrados.</span>
+        }
+        @if (erroAtivarAno()) {
+          <div class="notice notice-error" role="alert">{{ erroAtivarAno() }}</div>
+        }
+      </div>
+      <div class="panel-heading">
+        <span class="icon-badge icon-blue">A</span>
+        <div>
+          <span class="eyebrow">PERÍODO ESCOLAR</span>
+          <h2>Cadastrar ano letivo</h2>
+        </div>
+      </div>
+      <form #anoFormRef="ngForm" (ngSubmit)="cadastrarAno(anoFormRef)">
+        <label>
+          Ano
+          <input name="ano" type="number" [(ngModel)]="anoForm.ano" min="2000" max="2100" required />
+        </label>
+        <div class="form-row">
+          <label>
+            Data de início (opcional)
+            <input name="dataInicio" type="date" [(ngModel)]="anoForm.data_inicio" />
+          </label>
+          <label>
+            Data de término (opcional)
+            <input name="dataFim" type="date" [(ngModel)]="anoForm.data_fim" />
+          </label>
+        </div>
+        <label class="checkbox-option">
+          <input name="ativo" type="checkbox" [(ngModel)]="anoForm.ativo" />
+          Definir como ano letivo vigente
+        </label>
+        @if (erroAno()) {
+          <div class="notice notice-error" role="alert">{{ erroAno() }}</div>
+        }
+        <button class="button button-primary" type="submit">Cadastrar ano letivo</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <div class="panel-heading">
+        <span class="icon-badge icon-orange">T</span>
+        <div>
+          <span class="eyebrow">TURMAS</span>
+          <h2>Cadastrar turma</h2>
+        </div>
+      </div>
+      @if (anosLetivos().length) {
+        <form #turmaFormRef="ngForm" (ngSubmit)="cadastrarTurma(turmaFormRef)">
+          <label>
+            Ano letivo
+            <select name="anoLetivo" [(ngModel)]="turmaForm.ano_letivo" (ngModelChange)="selecionarAno($event)" required>
+              <option value="" disabled>Selecione um ano letivo</option>
+              @for (ano of anosLetivos(); track ano.id) {
+                <option [value]="ano.id">{{ ano.ano }}{{ ano.ativo ? ' · Vigente' : '' }}</option>
+              }
+            </select>
+          </label>
+          <label>
+            Nível de ensino
+            <select name="nivelEnsino" [(ngModel)]="turmaForm.nivel_ensino" (ngModelChange)="alterarNivel($event)" required>
+              <option value="fundamental">Ensino Fundamental</option>
+              <option value="medio">Ensino Médio</option>
+            </select>
+          </label>
+          <div class="form-row">
+            <label>
+              Série
+              <select name="serie" [(ngModel)]="turmaForm.serie" required>
+                <option value="" disabled>Selecione uma série</option>
+                @for (serie of seriesDisponiveis(); track serie) {
+                  <option [value]="serie">{{ serie }}ª série</option>
+                }
+              </select>
+            </label>
+            <label>
+              Turma
+              <input name="nome" type="text" [(ngModel)]="turmaForm.nome" maxlength="10" pattern="[A-Za-zÀ-ÿ]+"
+                placeholder="Ex.: A" required />
+            </label>
+          </div>
+          <div class="form-row">
+            <label>
+              Turno
+              <select name="turno" [(ngModel)]="turmaForm.turno" required>
+                <option value="manha">Manhã</option>
+                <option value="tarde">Tarde</option>
+                <option value="noite">Noite</option>
+                <option value="integral">Integral</option>
+              </select>
+            </label>
+            <label>
+              Sala (opcional)
+              <input name="sala" type="text" [(ngModel)]="turmaForm.sala" maxlength="50" placeholder="Ex.: Sala 12" />
+            </label>
+          </div>
+          @if (erroTurma()) {
+            <div class="notice notice-error" role="alert">{{ erroTurma() }}</div>
+          }
+          <button class="button button-primary" type="submit" [disabled]="!turmaForm.ano_letivo">Cadastrar turma</button>
+        </form>
+      } @else {
+        <p class="empty-state">Cadastre um ano letivo antes de adicionar turmas.</p>
+      }
+    </section>
+  </div>
+
+  @if (anosLetivos().length) {
+    <section class="panel classes-panel">
+      <div class="list-heading">
+        <div>
+          <span class="eyebrow">ESTRUTURA CADASTRADA</span>
+          <h2>Turmas de {{ anoSelecionadoLabel() }}</h2>
+        </div>
+        <div class="list-actions">
+          <label class="archive-toggle"><input type="checkbox" [ngModel]="incluirArquivadas()" (ngModelChange)="alternarArquivadas($event)" /> Incluir arquivadas</label>
+          <span class="count">{{ turmas().length }}</span>
+        </div>
+      </div>
+      @if (turmas().length) {
+        <ul class="class-list">
+          @for (turma of turmas(); track turma.id) {
+            <li>
+              <strong>{{ turma.serie }}ª {{ turma.nivel_ensino === 'medio' ? 'EM' : 'EF' }} · Turma {{ turma.nome }}</strong>
+              <span>{{ turma.turno }}{{ turma.sala ? ' · Sala ' + turma.sala : '' }}</span>
+              @if (!turma.ativo) { <span class="archive-badge">Arquivada</span> }
+              <div class="class-actions">
+                <button class="button button-quiet" type="button" (click)="editarTurma(turma)">{{ turma.ativo ? 'Editar' : 'Gerenciar' }}</button>
+              </div>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="empty-state">Ainda não há turmas cadastradas para este ano letivo.</p>
+      }
+    </section>
+  }
+</section>
+
+@if (turmaEmEdicao(); as turma) {
+  <div class="edit-backdrop" role="presentation" (click)="fecharEdicaoTurma()">
+    <section class="panel edit-dialog" role="dialog" aria-modal="true" aria-labelledby="edit-turma-title" (click)="$event.stopPropagation()">
+      <div class="list-heading">
+        <div><span class="eyebrow">ESTRUTURA ESCOLAR</span><h2 id="edit-turma-title">Editar turma</h2></div>
+        <button class="button button-quiet" type="button" (click)="fecharEdicaoTurma()">Fechar</button>
+      </div>
+      <form #editarTurmaForm="ngForm" (ngSubmit)="salvarEdicaoTurma()">
+        <label>Ano letivo<select name="editAno" [(ngModel)]="turmaForm.ano_letivo" required>
+          @for (ano of anosLetivos(); track ano.id) { <option [value]="ano.id">{{ ano.ano }}</option> }
+        </select></label>
+        <label>Nível de ensino<select name="editNivel" [(ngModel)]="turmaForm.nivel_ensino" (ngModelChange)="alterarNivel($event)" required>
+          <option value="fundamental">Ensino Fundamental</option><option value="medio">Ensino Médio</option>
+        </select></label>
+        <div class="form-row">
+          <label>Série<select name="editSerie" [(ngModel)]="turmaForm.serie" required>
+            @for (serie of seriesDisponiveis(); track serie) { <option [value]="serie">{{ serie }}ª série</option> }
+          </select></label>
+          <label>Turma<input name="editNome" [(ngModel)]="turmaForm.nome" required pattern="[A-Za-zÀ-ÿ]+" /></label>
+        </div>
+        <div class="form-row">
+          <label>Turno<select name="editTurno" [(ngModel)]="turmaForm.turno" required>
+            <option value="manha">Manhã</option><option value="tarde">Tarde</option><option value="noite">Noite</option><option value="integral">Integral</option>
+          </select></label>
+          <label>Sala (opcional)<input name="editSala" [(ngModel)]="turmaForm.sala" /></label>
+        </div>
+        @if (erroTurma()) { <div class="notice notice-error" role="alert">{{ erroTurma() }}</div> }
+        <p class="tip">A exclusão permanente de uma turma também remove as matrículas e atribuições associadas. Arquive para preservar esse histórico.</p>
+        <div class="dialog-actions">
+          @if (turma.ativo) {
+            <button class="button button-quiet" type="button" (click)="arquivarTurma(turma)">Arquivar turma</button>
+          } @else {
+            <button class="button button-quiet" type="button" (click)="restaurarTurma(turma)">Restaurar turma</button>
+          }
+          <button class="button button-danger-quiet" type="button" (click)="excluirTurma(turma)">Excluir permanentemente</button>
+          <button class="button button-quiet" type="button" (click)="fecharEdicaoTurma()">Cancelar</button>
+          <button class="button button-primary" type="submit" [disabled]="salvandoEdicao()">Salvar alterações</button>
+        </div>
+      </form>
+    </section>
+  </div>
+}

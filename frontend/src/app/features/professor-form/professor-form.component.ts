@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, output, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { TurmaService } from '../../core/services/turma.service';
 import { ProfessorService } from '../../core/services/professor.service';
 import { Turma } from '../../shared/models/turma.model';
@@ -38,7 +38,7 @@ export class ProfessorFormComponent implements OnInit {
       : this.turmasSelecionadas.filter(t => t !== id);
   }
 
-  cadastrar() {
+  cadastrar(cadastroForm?: NgForm) {
     this.erro.set('');
     if (!this.form.email.trim()) { this.erro.set('Informe o e-mail do professor.'); return; }
     if (this.form.senha.length < 6) { this.erro.set('A senha deve ter pelo menos 6 caracteres.'); return; }
@@ -57,10 +57,11 @@ export class ProfessorFormComponent implements OnInit {
 
     this.professorService.cadastrar(payload).subscribe({
       next: (professor) => {
-        this.professorAdicionado.emit(professor.nome_completo);
         this.form = { nome_completo: '', email: '', senha: '', confirmacao_senha: '', matricula_funcional: '' };
         this.foto = null;
         this.turmasSelecionadas = [];
+        cadastroForm?.resetForm(this.form);
+        this.professorAdicionado.emit(professor.nome_completo);
       },
       error: () => this.erro.set('Não foi possível cadastrar o professor.'),
     });

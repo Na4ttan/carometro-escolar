@@ -31,6 +31,23 @@
   margin-bottom: 28px;
 }
 
+.archive-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.archive-filter input,
+.archive-toggle input {
+  width: 15px;
+  min-height: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--blue);
+}
+
 .results-section {
   margin-bottom: 32px;
 }
@@ -79,6 +96,84 @@
 .result-details h3 {
   margin: 0;
   font-size: 14px;
+}
+
+.archive-badge {
+  justify-self: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--surface-raised, var(--border));
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.card-actions,
+.dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.card-actions .button {
+  padding: 7px 9px;
+  font-size: 11px;
+}
+
+.button-danger-quiet {
+  border: 1px solid #dc2626;
+  background: #dc2626;
+  color: #fff;
+}
+
+.button-danger-quiet:hover {
+  border-color: #b91c1c;
+  background: #b91c1c;
+  color: #fff;
+}
+
+.edit-backdrop {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(0 0 0 / 58%);
+}
+
+.edit-dialog {
+  width: min(620px, 100%);
+  max-height: min(90vh, 760px);
+  overflow-y: auto;
+}
+
+.edit-dialog h2 {
+  margin: 5px 0 0;
+  font-size: 20px;
+}
+
+.edit-dialog form {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.edit-class-options {
+  display: grid;
+  max-height: 180px;
+  gap: 8px;
+  overflow: auto;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+}
+
+.dialog-actions {
+  justify-content: flex-end;
+  margin-top: 4px;
 }
 
 .result-details small {

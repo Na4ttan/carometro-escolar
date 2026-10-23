@@ -6,4 +6,5 @@ export interface Professor {
   foto: string | null;
   turmas_ids: number[];
   turmas_nomes: string[];
+  ativo: boolean;
 }

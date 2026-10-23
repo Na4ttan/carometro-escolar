@@ -1,0 +1,167 @@
+.academic-page {
+  padding-top: 32px;
+}
+
+.page-heading {
+  margin-bottom: 20px;
+}
+
+.page-heading h1 {
+  margin: 6px 0 4px;
+  font-size: 28px;
+}
+
+.page-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.academic-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.academic-grid .panel {
+  align-self: start;
+}
+
+.active-year-selector {
+  display: grid;
+  gap: 7px;
+  margin: -4px 0 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.active-year-status {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.checkbox-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-label);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.checkbox-option input {
+  width: 15px;
+  min-height: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--blue);
+}
+
+.classes-panel {
+  margin-top: 18px;
+}
+
+.class-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.class-list li {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.list-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.archive-toggle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.class-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 5px;
+}
+
+.class-actions .button {
+  padding: 7px 9px;
+  font-size: 11px;
+}
+
+.archive-badge {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.button-danger-quiet {
+  border: 1px solid #dc2626;
+  background: #dc2626;
+  color: #fff;
+}
+
+.button-danger-quiet:hover {
+  border-color: #b91c1c;
+  background: #b91c1c;
+  color: #fff;
+}
+
+.edit-backdrop {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(0 0 0 / 58%);
+}
+
+.edit-dialog {
+  width: min(620px, 100%);
+  max-height: min(90vh, 760px);
+  overflow-y: auto;
+}
+
+.edit-dialog h2 {
+  margin: 5px 0 0;
+  font-size: 20px;
+}
+
+.edit-dialog form {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.class-list span {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+@media (max-width: 760px) {
+  .academic-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -38,14 +38,16 @@ class ComunidadeApiTests(APITestCase):
         outro_ano = AnoLetivo.objects.create(escola=self.outra_escola, ano=2026)
         self.turma = Turma.objects.create(
             ano_letivo=ano,
-            nome="6º A",
-            serie="6º ano",
+            nome="A",
+            nivel_ensino=Turma.NivelEnsino.FUNDAMENTAL,
+            serie=6,
             turno=Turma.Turno.MANHA,
         )
         self.outra_turma = Turma.objects.create(
             ano_letivo=outro_ano,
-            nome="6º B",
-            serie="6º ano",
+            nome="B",
+            nivel_ensino=Turma.NivelEnsino.FUNDAMENTAL,
+            serie=6,
             turno=Turma.Turno.TARDE,
         )
         self.client.force_authenticate(user=self.escola_user)
@@ -145,8 +147,9 @@ class ComunidadeApiTests(APITestCase):
     def test_filtro_alunos_por_turma(self):
         nova_turma = Turma.objects.create(
             ano_letivo=self.turma.ano_letivo,
-            nome="7º A",
-            serie="7º ano",
+            nome="A",
+            nivel_ensino=Turma.NivelEnsino.FUNDAMENTAL,
+            serie=7,
             turno=Turma.Turno.MANHA,
         )
         aluno1 = Aluno.objects.create(nome_completo="Aluno Turma 6")
@@ -328,8 +331,9 @@ class ServiceLayerUnitTests(TestCase):
         self.ano = AnoLetivo.objects.create(escola=self.escola, ano=2026)
         self.turma = Turma.objects.create(
             ano_letivo=self.ano,
-            nome="9º A",
-            serie="9º ano",
+            nome="A",
+            nivel_ensino=Turma.NivelEnsino.FUNDAMENTAL,
+            serie=9,
             turno=Turma.Turno.MANHA,
         )
 

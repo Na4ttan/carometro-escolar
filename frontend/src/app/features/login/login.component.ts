@@ -25,7 +25,7 @@ export class LoginComponent {
         this.authService.carregarPerfil().subscribe({
           next: (perfil) => {
             this.authService.perfil.set(perfil);
-            this.router.navigate([perfil.tipo === 'professor' ? '/consulta' : '/inicio']);
+            this.router.navigate(['/consulta']);
           },
           error: () => this.erro.set('Não foi possível carregar o perfil.')
         });

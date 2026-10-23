@@ -7,4 +7,5 @@ export interface Aluno {
   foto: string | null;
   turma_id: number | null;
   turma_nome: string | null;
+  ativo: boolean;
 }

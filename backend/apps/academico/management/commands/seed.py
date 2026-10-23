@@ -6,12 +6,12 @@ from apps.academico.models import AnoLetivo, Escola, Turma
 User = get_user_model()
 
 TURMAS = [
-    {"nome": "A", "serie": "6º Ano", "turno": "manha"},
-    {"nome": "B", "serie": "6º Ano", "turno": "tarde"},
-    {"nome": "A", "serie": "7º Ano", "turno": "manha"},
-    {"nome": "B", "serie": "7º Ano", "turno": "tarde"},
-    {"nome": "A", "serie": "8º Ano", "turno": "manha"},
-    {"nome": "A", "serie": "9º Ano", "turno": "tarde"},
+    {"nome": "A", "nivel_ensino": "fundamental", "serie": 6, "turno": "manha"},
+    {"nome": "B", "nivel_ensino": "fundamental", "serie": 6, "turno": "tarde"},
+    {"nome": "A", "nivel_ensino": "fundamental", "serie": 7, "turno": "manha"},
+    {"nome": "B", "nivel_ensino": "fundamental", "serie": 7, "turno": "tarde"},
+    {"nome": "A", "nivel_ensino": "fundamental", "serie": 8, "turno": "manha"},
+    {"nome": "A", "nivel_ensino": "fundamental", "serie": 9, "turno": "tarde"},
 ]
 
 
@@ -60,10 +60,12 @@ class Command(BaseCommand):
             _, criada = Turma.objects.get_or_create(
                 ano_letivo=ano_letivo,
                 nome=t["nome"],
-                defaults={"serie": t["serie"], "turno": t["turno"], "ativo": True},
+                nivel_ensino=t["nivel_ensino"],
+                serie=t["serie"],
+                defaults={"turno": t["turno"], "ativo": True},
             )
             if criada:
-                self.stdout.write(f"Turma '{t['serie']} {t['nome']}' criada.")
+                self.stdout.write(f"Turma '{t['serie']}º EF {t['nome']}' criada.")
 
         self.stdout.write(self.style.SUCCESS("\nSeed concluído!"))
         self.stdout.write("  Escola → usuário: escola  | senha: escola123")

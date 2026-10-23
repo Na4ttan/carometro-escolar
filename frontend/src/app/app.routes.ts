@@ -7,11 +7,7 @@ export const routes: Routes = [
     path: 'login',
     loadComponent: () => import('./features/login/login.component').then(m => m.LoginComponent)
   },
-  {
-    path: 'inicio',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/inicio/inicio.component').then(m => m.InicioComponent)
-  },
+  { path: 'inicio', redirectTo: 'consulta', pathMatch: 'full' },
   {
     path: 'consulta',
     canActivate: [authGuard],
@@ -26,5 +22,15 @@ export const routes: Routes = [
     path: 'professores/novo',
     canActivate: [authGuard],
     loadComponent: () => import('./features/professor-form/professor-form.component').then(m => m.ProfessorFormComponent)
+  },
+  {
+    path: 'estrutura-academica',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/academico-form/academico-form.component').then(m => m.AcademicoFormComponent)
+  },
+  {
+    path: 'tutorial',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/tutorial/tutorial.component').then(m => m.TutorialComponent)
   }
 ];

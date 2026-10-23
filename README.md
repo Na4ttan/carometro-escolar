@@ -10,6 +10,15 @@ O projeto utiliza uma **arquitetura modular por domínios de negócio**:
   - `apps.processamento`: Visão computacional com OpenCV, enquadramento facial inteligente, redimensionamento (500x500) e worker assíncrono em segundo plano.
 - **Frontend (Web/Mobile):** Angular.
 
+### Funcionalidades do painel escolar
+
+- O cabeçalho do painel da escola oferece acesso às telas de cadastro de alunos, cadastro de professores, anos e turmas, e consulta.
+- Ao salvar um aluno ou professor, o formulário é limpo para permitir um novo cadastro.
+- A escola pode cadastrar anos letivos e definir qual está ativo. Ativar um ano desativa os demais para a mesma escola, sem excluir seus registros.
+- As turmas são organizadas por nível de ensino (Fundamental ou Médio), série e letra da turma. Turno e sala também podem ser informados.
+- A consulta permite filtrar por turma e ano letivo. O ano ativo fica selecionado inicialmente; professores também podem consultar por ano letivo, entre os anos relacionados às suas turmas.
+- A escola pode editar alunos e professores na tela de consulta e editar turmas em “Anos e turmas”. Também pode arquivar, restaurar ou excluir permanentemente esses registros; professores continuam somente com acesso de consulta.
+
 ---
 
 ## 🛠️ 1. Pré-requisitos e preparação do ambiente
@@ -164,7 +173,7 @@ Se quiser rodar apenas no computador sem usar o túnel da internet:
 
 ## 🧑‍🏫 7. Passo a Passo: Configuração Inicial do Banco de Dados
 
-Para que o sistema funcione do zero, é necessário criar primeiro o **administrador** e a **estrutura base da escola** no Django Admin. A partir disso, o restante da operação (cadastro de professores e alunos) é feito diretamente na interface visual do sistema.
+Para que o sistema funcione do zero, crie o **administrador** e a **estrutura base da escola** no Django Admin. Depois, cadastre anos letivos, turmas, professores e alunos pela interface visual do sistema.
 
 ### Passo 1: Criar o Administrador Geral do Sistema
 
@@ -183,11 +192,11 @@ O terminal solicitará:
 
 ---
 
-### Passo 2: Cadastrar as Entidades Estruturais no Django Admin
+### Passo 2: Cadastrar a Escola no Django Admin
 
 Com a aplicação rodando, acesse no navegador: **http://127.0.0.1:8000/admin/** e faça login com a conta de administrador criada no Passo 1.
 
-No Django Admin, cadastre as informações na seguinte ordem:
+No Django Admin, crie o usuário e a escola:
 
 #### 1. Criar o Usuário da Escola:
 1. Vá em **Usuários** (Users) ➔ **Adicionar usuário** (+).
@@ -202,28 +211,9 @@ No Django Admin, cadastre as informações na seguinte ordem:
    - **Usuário:** selecione o usuário criado no passo anterior (`escola_central`).
 3. Clique em **Salvar**.
 
-#### 3. Cadastrar o Ano Letivo:
-1. Vá em **Anos Letivos** ➔ **Adicionar ano letivo** (+).
-2. Preencha:
-   - **Ano:** ex: `2026`.
-   - **Data de início** e **Data de término**.
-   - **Ativo:** marque a caixa como ativo.
-   - **Escola:** selecione a escola cadastrada.
-3. Clique em **Salvar**.
-
-#### 4. Cadastrar as Turmas:
-1. Vá em **Turmas** ➔ **Adicionar turma** (+).
-2. Preencha:
-   - **Nome:** ex: `1º Ano A`, `9º Ano B`, `3º Colegial`.
-   - **Série / Etapa:** ex: `1º Ano`, `9º Ano`.
-   - **Turno:** selecione `Manhã`, `Tarde` ou `Noite`.
-   - **Ano letivo:** selecione o ano letivo ativo.
-   - **Escola:** selecione a sua escola.
-3. Clique em **Salvar**. Cadastre quantas turmas desejar.
-
 ---
 
-### Passo 3: Cadastrar Professores e Alunos na Aplicação Web/Mobile
+### Passo 3: Cadastrar Anos Letivos, Turmas, Professores e Alunos
 
 Agora que a estrutura está pronta no Django Admin, **não é mais necessário usar o painel do Django para o dia a dia**.
 
@@ -232,9 +222,20 @@ Agora que a estrutura está pronta no Django Admin, **não é mais necessário u
    - No celular: acesse a URL HTTPS gerada pelo túnel no terminal (ex: `https://...loca.lt`)
 2. Faça o login utilizando o **usuário e senha da escola** criados no Passo 2.1 (ex: `escola_central`).
 3. No **Painel da Escola**:
+   - **Anos e turmas:** cadastre os anos letivos e selecione qual ficará ativo. O sistema desativa os outros anos da escola automaticamente. Para cada turma, selecione o nível de ensino, a série e a letra da turma (por exemplo, `Fundamental`, `3ª série`, `A`); informe também turno e, opcionalmente, sala.
    - **Cadastrar Alunos:** preencha nome, data de nascimento, selecione a turma e tire a foto diretamente pela câmera do celular/webcam ou selecione um arquivo de imagem.
    - **Cadastrar Professores:** preencha nome, e-mail (que será o login do professor), defina a **senha de acesso com confirmação**, selecione as turmas às quais ele leciona e tire a foto.
-   - **Consultar / Carômetro Geral:** pesquise alunos e professores em tempo real por nome ou filtre por turma.
+   - **Consultar / Carômetro Geral:** pesquise alunos e professores por nome e filtre por turma e ano letivo. O ano ativo aparece selecionado inicialmente. Abra **Editar** ou **Gerenciar** em um cartão para editar ou acessar as ações de arquivamento, restauração e exclusão.
+   - Para gerenciar turmas, use as ações na lista **Estrutura cadastrada** da tela **Anos e turmas**.
+
+### Arquivar, restaurar e excluir registros
+
+As ações de gerenciamento aparecem somente para a escola. Professores continuam com acesso somente de consulta.
+
+- **Arquivar:** desativa o registro sem apagar seus dados nem seus vínculos. Alunos e professores arquivados deixam de aparecer na consulta normal; turmas arquivadas deixam de ser oferecidas nos cadastros. Para localizar um registro arquivado, marque **Incluir cadastros arquivados** na consulta ou **Incluir arquivadas** na lista de turmas. A escola pode restaurá-lo depois.
+- **Excluir:** remove o registro permanentemente e não pode ser desfeito. Excluir um aluno também apaga suas matrículas; excluir uma turma também apaga as matrículas e atribuições de professores ligadas a ela; excluir um professor também remove sua conta de acesso.
+- A interface pede confirmação antes de excluir e informa quais vínculos serão removidos. Arquive o registro se houver dúvida ou se o histórico precisar ser preservado.
+- Os cartões exibem a ação **Editar** (ou **Gerenciar**, para registros arquivados). O pop-up reúne edição, arquivamento/restauração e exclusão permanente. Para turmas, o mesmo fluxo fica na lista de turmas cadastradas. A foto do aluno ou professor é mantida ao editar os demais dados.
 
 ---
 
@@ -244,6 +245,7 @@ Agora que a estrutura está pronta no Django Admin, **não é mais necessário u
 2. O professor entra usando seu **e-mail** e a **senha** que a escola cadastrou para ele.
 3. O professor é direcionado automaticamente para o **Carômetro**, onde pode:
    - Selecionar suas turmas atribuídas.
+   - Filtrar a consulta por ano letivo, com o ano ativo selecionado inicialmente quando estiver disponível para suas turmas.
    - Ver a lista com fotos e nomes dos alunos matriculados nas suas turmas para identificação e acompanhamento diário.
    - O professor tem acesso somente de consulta, garantindo a segurança dos dados.
 
@@ -261,6 +263,8 @@ As rotas `/api/alunos/` e `/api/professores/` possuem recursos avançados para s
   - Professores: busca por `nome_completo`, `email` e `matricula_funcional`.
 - **Filtro Direto por Turma (`?turma=`):**
   - Permite consultar apenas alunos ou professores de uma turma específica diretamente no banco de dados.
+- **Filtro por Ano Letivo (`?ano_letivo=`):**
+  - Permite limitar os resultados às turmas vinculadas ao ano letivo selecionado na consulta.
 - **Eliminação de Consultas N+1:**
   - Utilização de `Prefetch` com carregamento conjunto de matrículas ativas e turmas, reduzindo o volume de consultas SQL de dezenas para apenas 2 queries por requisição.
 
