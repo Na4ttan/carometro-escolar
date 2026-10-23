@@ -16,3 +16,7 @@
 # Media uploads (protege fotos de alunos e professores)
 /backend/media/*
 !/backend/media/.gitkeep
+/backend/alunos/*
+!/backend/alunos/.gitkeep
+/backend/professores/*
+!/backend/professores/.gitkeep

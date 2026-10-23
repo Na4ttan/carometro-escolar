@@ -49,15 +49,13 @@ urlpatterns = [
     path("api/", include("apps.comunidade.urls")),
 ]
 
-# Em ambiente de desenvolvimento (DEBUG=True), o Django serve as fotos salvas em MEDIA_ROOT
-if settings.DEBUG:
-    urlpatterns += [
-        re_path(
-            r"^media/(?P<path>.*)$",
-            serve,
-            {"document_root": settings.MEDIA_ROOT},
-        ),
-    ]
+urlpatterns += [
+    re_path(
+        r"^media/(?P<path>.*)$",
+        serve,
+        {"document_root": settings.MEDIA_ROOT},
+    ),
+]
 
 # Rota 'catch-all' (deve ser a última da lista): qualquer URL não capturada acima é entregue ao Angular
 urlpatterns += [
