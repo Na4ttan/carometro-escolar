@@ -113,3 +113,16 @@
     flex: 1;
   }
 }
+
+.count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  padding: 10px;
+}
+
+.number {
+
+  padding: 10px;
+}
