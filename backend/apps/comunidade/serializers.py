@@ -27,6 +27,7 @@ class AlunoSerializer(serializers.ModelSerializer):
     """
 
     foto = serializers.ImageField(required=False)
+    remover_foto = serializers.BooleanField(write_only=True, required=False)
     turma = serializers.PrimaryKeyRelatedField(
         queryset=Turma.objects.all(), write_only=True, required=False
     )
@@ -36,8 +37,10 @@ class AlunoSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance is None:
-            self.fields["foto"].required = True
             self.fields["turma"].required = True
+            self.fields["matricula"].required = True
+            self.fields["matricula"].allow_blank = False
+            self.fields["matricula"].allow_null = False
 
     class Meta:
         model = Aluno
@@ -48,6 +51,7 @@ class AlunoSerializer(serializers.ModelSerializer):
             "data_nascimento",
             "matricula",
             "foto",
+            "remover_foto",
             "ativo",
             "turma",
             "turma_id",
@@ -56,19 +60,27 @@ class AlunoSerializer(serializers.ModelSerializer):
         read_only_fields = ("id", "ativo", "turma_id", "turma_nome")
 
     def validate_turma(self, turma):
-        """Valida se a turma pertence à escola do usuário logado via Service."""
+        """Restringe alterações de turma à escola ou às turmas do professor."""
         request = self.context.get("request")
         user = getattr(request, "user", None)
-        if not user or not hasattr(user, "escola"):
+        if not user or (not hasattr(user, "escola") and not hasattr(user, "professor")):
             raise serializers.ValidationError(
-                "Apenas a administração da escola pode vincular turmas a alunos."
+                "Este perfil não pode vincular turmas a alunos."
             )
         if self.instance:
-            if turma.ano_letivo.escola_id != getattr(getattr(user, "escola", None), "id", None):
-                raise serializers.ValidationError("A turma informada não pertence à sua escola.")
             if not turma.ativo:
                 raise serializers.ValidationError("Não é possível matricular o aluno em uma turma arquivada.")
+            if hasattr(user, "escola") and user.escola.ativo:
+                if turma.ano_letivo.escola_id != user.escola.id:
+                    raise serializers.ValidationError("A turma informada não pertence à sua escola.")
+            elif hasattr(user, "professor") and user.professor.ativo:
+                if not user.professor.turmas.filter(id=turma.id, ativo=True).exists():
+                    raise serializers.ValidationError("A turma informada não está atribuída ao seu perfil.")
+            else:
+                raise serializers.ValidationError("Este perfil não pode alterar turmas de alunos.")
             return turma
+        if not hasattr(user, "escola") or not user.escola.ativo:
+            raise serializers.ValidationError("Apenas a escola pode cadastrar alunos.")
         try:
             return AlunoService.validar_turma(turma, escola=user.escola)
         except DjangoValidationError as exc:
@@ -76,6 +88,13 @@ class AlunoSerializer(serializers.ModelSerializer):
 
     def validate_matricula(self, matricula):
         """Valida duplicidade de matrícula escolar via Service."""
+        if matricula is None:
+            if self.instance:
+                return None
+            raise serializers.ValidationError("A matrícula do aluno é obrigatória.")
+        matricula = AlunoService.normalizar_matricula(matricula)
+        if not matricula and not self.instance:
+            raise serializers.ValidationError("A matrícula do aluno é obrigatória.")
         if matricula:
             instance_id = self.instance.id if self.instance else None
             try:
@@ -141,10 +160,20 @@ class AlunoSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def update(self, instance, validated_data):
         turma = validated_data.pop("turma", None)
+        remover_foto = validated_data.pop("remover_foto", False)
+        foto_antiga = instance.foto
+        storage_antigo = foto_antiga.storage if foto_antiga else None
+        nome_foto_antiga = foto_antiga.name if foto_antiga else None
+        if remover_foto:
+            validated_data.pop("foto", None)
+            instance.foto = None
         instance._skip_async = "foto" not in validated_data
         for campo, valor in validated_data.items():
             setattr(instance, campo, valor)
         instance.save()
+
+        if (remover_foto or "foto" in validated_data) and storage_antigo and nome_foto_antiga:
+            transaction.on_commit(lambda: storage_antigo.delete(nome_foto_antiga))
 
         if turma:
             try:

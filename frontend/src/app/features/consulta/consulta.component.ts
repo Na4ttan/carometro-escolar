@@ -9,6 +9,7 @@ import { TurmaService } from '../../core/services/turma.service';
 import { Aluno } from '../../shared/models/aluno.model';
 import { Professor } from '../../shared/models/professor.model';
 import { Turma } from '../../shared/models/turma.model';
+import { PhotoPickerComponent } from '../../shared/components/photo-picker/photo-picker.component';
 import { AuthService } from '../../core/services/auth.service';
 import { AnoLetivo } from '../../core/services/turma.service';
 
@@ -33,7 +34,7 @@ interface ProfessorEdicao {
   standalone: true,
   templateUrl: './consulta.component.html',
   styleUrl: './consulta.component.css',
-  imports: [FormsModule]
+  imports: [FormsModule, PhotoPickerComponent]
 })
 export class ConsultaComponent implements OnInit {
   private alunoService = inject(AlunoService);
@@ -56,6 +57,8 @@ export class ConsultaComponent implements OnInit {
   alunoEmEdicao = signal<Aluno | null>(null);
   professorEmEdicao = signal<Professor | null>(null);
   alunoEdicao: AlunoEdicao = this.novaEdicaoAluno();
+  fotoAlunoEdicao = signal<File | null>(null);
+  removerFotoAlunoEdicao = signal(false);
   professorEdicao: ProfessorEdicao = this.novaEdicaoProfessor();
   erroEdicao = signal('');
   salvandoEdicao = signal(false);
@@ -151,6 +154,8 @@ export class ConsultaComponent implements OnInit {
 
   editarAluno(aluno: Aluno): void {
     this.alunoEmEdicao.set(aluno);
+    this.fotoAlunoEdicao.set(null);
+    this.removerFotoAlunoEdicao.set(false);
     this.alunoEdicao = {
       nome_completo: aluno.nome_completo,
       nome_social: aluno.nome_social ?? '',
@@ -166,16 +171,36 @@ export class ConsultaComponent implements OnInit {
     if (!aluno || this.salvandoEdicao()) return;
     this.salvandoEdicao.set(true);
     this.erroEdicao.set('');
-    this.alunoService.atualizar(aluno.id, {
+    const dados = {
       nome_completo: this.alunoEdicao.nome_completo,
       nome_social: this.alunoEdicao.nome_social || null,
       data_nascimento: this.alunoEdicao.data_nascimento || null,
       matricula: this.alunoEdicao.matricula || null,
       turma: Number(this.alunoEdicao.turma),
-    }).subscribe({
+    };
+    const foto = this.fotoAlunoEdicao();
+    const payload = foto || this.removerFotoAlunoEdicao()
+      ? this.criarPayloadAluno(dados, foto)
+      : dados;
+    this.alunoService.atualizar(aluno.id, payload).subscribe({
       next: () => { this.alunoEmEdicao.set(null); this.salvandoEdicao.set(false); this.recarregarConsulta(); },
       error: () => { this.erroEdicao.set('Não foi possível salvar. Confira os dados e tente novamente.'); this.salvandoEdicao.set(false); },
     });
+  }
+
+  atualizarFotoAlunoEdicao(foto: File | null): void {
+    this.fotoAlunoEdicao.set(foto);
+    if (foto) this.removerFotoAlunoEdicao.set(false);
+  }
+
+  private criarPayloadAluno(dados: Record<string, unknown>, foto: File | null): FormData {
+    const payload = new FormData();
+    for (const [campo, valor] of Object.entries(dados)) {
+      payload.append(campo, valor === null || valor === undefined ? '' : String(valor));
+    }
+    if (foto) payload.append('foto', foto);
+    if (this.removerFotoAlunoEdicao()) payload.append('remover_foto', 'true');
+    return payload;
   }
 
   editarProfessor(professor: Professor): void {

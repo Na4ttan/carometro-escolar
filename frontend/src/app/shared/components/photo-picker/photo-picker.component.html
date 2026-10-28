@@ -1,8 +1,8 @@
 <fieldset class="photo-field">
   <legend>{{ label() }}</legend>
   <div class="photo-picker">
-    @if (preview()) {
-      <img class="photo-preview" [src]="preview()" [alt]="'Prévia: ' + label()" />
+    @if (preview() || (existingPhoto() && !hideExistingPhoto())) {
+      <img class="photo-preview" [src]="preview() || existingPhoto()" [alt]="'Prévia: ' + label()" />
     } @else {
       <span class="photo-placeholder" aria-hidden="true">+</span>
     }
@@ -20,6 +20,11 @@
       <button class="button-secondary" type="button" (click)="abrirCamera()">
         Tirar foto
       </button>
+      @if (preview() || (existingPhoto() && !hideExistingPhoto())) {
+        <button class="button-secondary" type="button" (click)="removerFoto()">
+          Excluir foto
+        </button>
+      }
     </div>
   </div>
   <div class="camera-view" [hidden]="!cameraOpen()">

@@ -58,7 +58,7 @@
         }
       </select>
     </label>
-    @if (perfil()?.tipo === 'escola') {
+    @if (perfil()?.tipo === 'escola' || perfil()?.tipo === 'professor') {
       <label class="archive-filter">
         <input type="checkbox" [ngModel]="incluirArquivados()" (ngModelChange)="alternarArquivados($event)" />
         Incluir cadastros arquivados
@@ -97,7 +97,7 @@
                   <small>Matrícula: {{ aluno.matricula }}</small>
                 }
               </div>
-              @if (perfil()?.tipo === 'escola') {
+              @if (perfil()?.tipo === 'escola' || perfil()?.tipo === 'professor') {
                 <div class="card-actions">
                   <button class="button button-quiet" type="button" (click)="editarAluno(aluno)">{{ aluno.ativo ? 'Editar' : 'Gerenciar' }}</button>
                 </div>
@@ -176,7 +176,14 @@
             }
           </select></label>
         </div>
-        <p class="tip">A foto atual será mantida. Alterar a turma atualiza a matrícula do aluno e preserva o histórico anterior.</p>
+        <app-photo-picker
+          label="Foto do aluno (opcional)"
+          [existingPhoto]="aluno.foto"
+          [photo]="fotoAlunoEdicao()"
+          (photoChange)="atualizarFotoAlunoEdicao($event)"
+          (photoRemoved)="removerFotoAlunoEdicao.set(true)"
+        />
+        <p class="tip">A foto atual será mantida se nenhuma alteração for feita. Alterar a turma atualiza a matrícula e preserva o histórico anterior.</p>
         @if (erroEdicao()) { <div class="notice notice-error" role="alert">{{ erroEdicao() }}</div> }
         <div class="dialog-actions">
           @if (aluno.ativo) {
@@ -184,7 +191,9 @@
           } @else {
             <button class="button button-quiet" type="button" (click)="restaurarAluno(aluno)">Restaurar aluno</button>
           }
-          <button class="button button-danger-quiet" type="button" (click)="excluirAluno(aluno)">Excluir permanentemente</button>
+          @if (perfil()?.tipo === 'escola') {
+            <button class="button button-danger-quiet" type="button" (click)="excluirAluno(aluno)">Excluir permanentemente</button>
+          }
           <button class="button button-quiet" type="button" (click)="fecharEdicao()">Cancelar</button>
           <button class="button button-primary" type="submit" [disabled]="salvandoEdicao()">Salvar alterações</button>
         </div>

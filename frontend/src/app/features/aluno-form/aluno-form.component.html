@@ -25,9 +25,10 @@
     </div>
     <div class="form-row">
       <label>
-        Matrícula (opcional)
+        Matrícula
         <input name="matricula" type="text" [(ngModel)]="form.matricula" maxlength="50"
-          placeholder="Digite a matrícula" />
+          placeholder="Ex.: 998.444.222.111" required />
+        <small class="field-hint">Pontos e hífens serão removidos ao salvar.</small>
       </label>
       <label>
         Turma
@@ -39,7 +40,7 @@
         </select>
       </label>
     </div>
-    <app-photo-picker label="Foto do aluno (obrigatória)" [(photo)]="foto" />
+    <app-photo-picker label="Foto do aluno (opcional)" [(photo)]="foto" />
     @if (erro()) {
       <div class="notice notice-error" role="alert">{{ erro() }}</div>
     }
@@ -47,4 +48,41 @@
       Cadastrar aluno
     </button>
   </form>
+</section>
+
+<section class="panel csv-import-panel">
+  <div class="panel-heading">
+    <span class="icon-badge icon-blue">CSV</span>
+    <div>
+      <span class="eyebrow">IMPORTAÇÃO EM LOTE</span>
+      <h2>Importar alunos por CSV</h2>
+    </div>
+  </div>
+  <p class="csv-import-help">
+    O arquivo deve conter colunas de série/turma, nome completo e matrícula. A matrícula será salva sem pontos.
+    Alunos já cadastrados pela matrícula terão nome e turma atualizados. Turmas ainda não cadastradas serão criadas automaticamente.
+  </p>
+  <label>
+    Nível de ensino <span aria-hidden="true">*</span>
+    <select name="nivelEnsinoImportacao" [ngModel]="nivelEnsinoImportacao()"
+      (ngModelChange)="nivelEnsinoImportacao.set($event)" required>
+      <option value="" disabled>Selecione o nível de ensino</option>
+      <option value="fundamental">Ensino Fundamental</option>
+      <option value="medio">Ensino Médio</option>
+    </select>
+  </label>
+  <label>
+    Arquivo CSV
+    <input type="file" accept=".csv,text/csv" (change)="importarCsv($event)"
+      [disabled]="importando() || !nivelEnsinoImportacao()" />
+  </label>
+  @if (importando()) {
+    <p class="notice">Importando alunos…</p>
+  }
+  @if (resultadoImportacao()) {
+    <p class="notice notice-success" role="status">{{ resultadoImportacao() }}</p>
+  }
+  @if (erroImportacao()) {
+    <p class="notice notice-error" role="alert">{{ erroImportacao() }}</p>
+  }
 </section>

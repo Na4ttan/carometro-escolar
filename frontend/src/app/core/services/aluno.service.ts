@@ -35,7 +35,19 @@ export class AlunoService {
     return this.http.post<Aluno>(`${environment.apiUrl}/alunos/`, formData);
   }
 
-  atualizar(id: number, dados: Record<string, unknown>) {
+  importarCsv(arquivo: File, nivelEnsino: 'fundamental' | 'medio') {
+    const formData = new FormData();
+    formData.append('arquivo', arquivo);
+    formData.append('nivel_ensino', nivelEnsino);
+    return this.http.post<{
+      criados: number;
+      atualizados: number;
+      processados: number;
+      erros: { linha: number; mensagem: string }[];
+    }>(`${environment.apiUrl}/alunos/importar-csv/`, formData);
+  }
+
+  atualizar(id: number, dados: Record<string, unknown> | FormData) {
     return this.http.patch<Aluno>(`${environment.apiUrl}/alunos/${id}/`, dados);
   }
 

@@ -10,17 +10,23 @@ Responsabilidades:
 from django.db import transaction
 from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
-from rest_framework import exceptions, filters, generics
+from rest_framework import exceptions, filters, generics, status
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.academico.models import Turma
-from apps.autenticacao.permissions import PertenceAEscola, PodeVisualizarOuEscolaCria
+from apps.autenticacao.permissions import (
+    PodeEditarAluno,
+    PertenceAEscola,
+    PodeVisualizarOuEscolaCria,
+)
 from .models import Aluno, Matricula, Professor
 from .pagination import CarometroPagination
 from .serializers import AlunoSerializer, ProfessorSerializer
+from .services.importacao_alunos import importar_alunos_csv
 
 
 class AlunoListCreateView(generics.ListCreateAPIView):
@@ -98,8 +104,9 @@ class AlunoListCreateView(generics.ListCreateAPIView):
             qs = Aluno.objects.filter(
                 matriculas__turma__in=user.professor.turmas.filter(ativo=True),
                 matriculas__status=Matricula.Status.ATIVA,
-                ativo=True,
             )
+            if not incluir_arquivados:
+                qs = qs.filter(ativo=True)
             if ano_letivo_filtro is not None:
                 qs = qs.filter(matriculas__turma__ano_letivo_id=ano_letivo_filtro)
         else:
@@ -119,6 +126,32 @@ class AlunoListCreateView(generics.ListCreateAPIView):
                 "Apenas a administração da escola pode cadastrar alunos."
             )
         serializer.save()
+
+
+class AlunoImportarCsvView(APIView):
+    """Importa alunos de um CSV para as turmas já existentes da escola."""
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, PertenceAEscola)
+    parser_classes = (MultiPartParser, FormParser)
+
+    def post(self, request):
+        arquivo = request.FILES.get("arquivo")
+        if not arquivo:
+            return Response({"detail": "Anexe um arquivo CSV."}, status=status.HTTP_400_BAD_REQUEST)
+        if not arquivo.name.lower().endswith(".csv"):
+            return Response({"detail": "O arquivo precisa ter extensão .csv."}, status=status.HTTP_400_BAD_REQUEST)
+        nivel_ensino = request.data.get("nivel_ensino")
+        if nivel_ensino not in (Turma.NivelEnsino.FUNDAMENTAL, Turma.NivelEnsino.MEDIO):
+            return Response(
+                {"detail": "Selecione ensino fundamental ou ensino médio."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        try:
+            resultado = importar_alunos_csv(arquivo, request.user.escola, nivel_ensino)
+        except (ValueError, UnicodeError) as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(resultado, status=status.HTTP_200_OK)
 
 
 class ProfessorListCreateView(generics.ListCreateAPIView):
@@ -180,13 +213,21 @@ class ProfessorListCreateView(generics.ListCreateAPIView):
 
 class AlunoDetailView(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated, PertenceAEscola)
+    permission_classes = (IsAuthenticated, PodeEditarAluno)
     serializer_class = AlunoSerializer
 
     def get_queryset(self):
-        return Aluno.objects.filter(
-            matriculas__turma__ano_letivo__escola=self.request.user.escola
-        ).distinct()
+        user = self.request.user
+        if hasattr(user, "escola") and user.escola.ativo:
+            return Aluno.objects.filter(
+                matriculas__turma__ano_letivo__escola=user.escola
+            ).distinct()
+        if hasattr(user, "professor") and user.professor.ativo:
+            return Aluno.objects.filter(
+                matriculas__turma__in=user.professor.turmas.filter(ativo=True),
+                matriculas__status=Matricula.Status.ATIVA,
+            ).distinct()
+        return Aluno.objects.none()
 
     def perform_destroy(self, instance):
         foto = instance.foto
@@ -215,15 +256,20 @@ class ProfessorDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class AlunoArquivarView(APIView):
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated, PertenceAEscola)
+    permission_classes = (IsAuthenticated, PodeEditarAluno)
 
     def post(self, request, pk, acao):
         if acao not in ("arquivar", "restaurar"):
             return Response({"detail": "Ação inválida."}, status=400)
-        aluno = get_object_or_404(
-            Aluno.objects.filter(matriculas__turma__ano_letivo__escola=request.user.escola).distinct(),
-            pk=pk,
-        )
+        user = request.user
+        if hasattr(user, "escola") and user.escola.ativo:
+            alunos = Aluno.objects.filter(matriculas__turma__ano_letivo__escola=user.escola)
+        else:
+            alunos = Aluno.objects.filter(
+                matriculas__turma__in=user.professor.turmas.filter(ativo=True),
+                matriculas__status=Matricula.Status.ATIVA,
+            )
+        aluno = get_object_or_404(alunos.distinct(), pk=pk)
         aluno.ativo = acao == "restaurar"
         aluno.save(update_fields=["ativo", "atualizado_em"])
         return Response(AlunoSerializer(aluno, context={"request": request}).data)

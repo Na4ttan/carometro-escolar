@@ -8,6 +8,7 @@ from .views import (
     AlunoArquivarView,
     AlunoDetailView,
     AlunoListCreateView,
+    AlunoImportarCsvView,
     ProfessorArquivarView,
     ProfessorDetailView,
     ProfessorListCreateView,
@@ -16,6 +17,7 @@ from .views import (
 urlpatterns = [
     # Listagem paginada e cadastro de alunos
     path("alunos/", AlunoListCreateView.as_view(), name="alunos"),
+    path("alunos/importar-csv/", AlunoImportarCsvView.as_view(), name="alunos_importar_csv"),
     path("alunos/<int:pk>/", AlunoDetailView.as_view(), name="aluno_detalhe"),
     path("alunos/<int:pk>/<str:acao>/", AlunoArquivarView.as_view(), name="aluno_arquivar"),
 
