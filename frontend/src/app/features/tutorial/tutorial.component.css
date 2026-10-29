@@ -1,0 +1,89 @@
+.tutorial-page {
+  padding-top: 32px;
+}
+
+.page-heading {
+  margin-bottom: 20px;
+}
+
+.page-heading h1 {
+  margin: 6px 0 4px;
+  font-size: 28px;
+}
+
+.page-heading p,
+.password-panel > p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.tutorial-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.tutorial-grid .panel {
+  align-self: start;
+}
+
+.steps,
+.care-list {
+  display: grid;
+  gap: 11px;
+  margin: 16px 0 0;
+  padding-left: 22px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.steps strong,
+.care-list strong {
+  color: var(--text);
+}
+
+.tip {
+  margin: 16px 0 0;
+  padding: 11px 13px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.tip strong {
+  color: var(--text);
+}
+
+.password-panel > p {
+  margin-top: 14px;
+}
+
+.password-panel code {
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.access-panel {
+  margin-top: 18px;
+}
+
+.access-panel h2 {
+  margin: 6px 0 0;
+  font-size: 18px;
+}
+
+.care-list {
+  margin-top: 12px;
+}
+
+@media (max-width: 760px) {
+  .tutorial-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,31 @@
+.field-hint {
+  color: var(--text-secondary, #64748b);
+  font-size: 0.8rem;
+}
+
+.csv-import-panel {
+  margin-top: 1.5rem;
+}
+
+.csv-import-help {
+  margin: 0 0 1rem;
+  color: var(--text-secondary, #64748b);
+  line-height: 1.5;
+}
+
+.notice-success {
+  color: #166534;
+}
+
+.select-turma {
+  height: 35px;
+}
+
+.input-csv {
+  margin-top: 15px;
+}
+
+.field-csv {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}

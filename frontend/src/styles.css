@@ -69,6 +69,7 @@ body {
 }
 
 .panel {
+  margin-top: 32px;
   padding: 26px;
   border: 1px solid var(--border);
   border-radius: 14px;
@@ -142,8 +143,8 @@ input,
 select {
   box-sizing: border-box;
   width: 100%;
-  min-height: 42px;
-  padding: 10px 12px;
+  min-height: 35px;
+  padding: 0px 12px;
   border: 1px solid var(--border-input);
   border-radius: 8px;
   background: var(--surface);
@@ -231,6 +232,37 @@ legend {
 .empty-state {
   color: var(--text-muted);
   font-size: 11px;
+}
+
+.input-senha {
+  position: relative;
+  width: 100%;
+}
+
+.input-senha input {
+  padding-right: 42px;
+}
+
+.btn-olho {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.btn-olho:hover {
+  color: var(--text);
+  background: var(--surface-muted);
 }
 
 @media (max-width: 580px) {

@@ -1,7 +1,7 @@
 <main class="page">
   <header class="topbar"  [class.topbar-login]="isLoginPage()">
     @if (authService.perfil()?.tipo === 'escola') {
-      <a class="brand" routerLink="/inicio" aria-label="Carômetro Escolar - início">
+      <a class="brand" routerLink="/consulta" aria-label="Carômetro Escolar - início">
         <span class="brand-mark">C</span>
         <span>Carômetro Escolar</span>
       </a>
@@ -15,17 +15,35 @@
       @if (authService.perfil()?.tipo === 'escola') {
         <nav class="main-nav" aria-label="Navegação principal">
           <a
-            routerLink="/inicio"
-            routerLinkActive="active"
-            #rlaInicio="routerLinkActive"
-            [attr.aria-current]="rlaInicio.isActive ? 'page' : null"
-          >Início</a>
-          <a
             routerLink="/consulta"
             routerLinkActive="active"
             #rlaConsulta="routerLinkActive"
             [attr.aria-current]="rlaConsulta.isActive ? 'page' : null"
-          >Consulta</a>
+          >Consultar</a>
+          <a
+            routerLink="/alunos/novo"
+            routerLinkActive="active"
+            #rlaAluno="routerLinkActive"
+            [attr.aria-current]="rlaAluno.isActive ? 'page' : null"
+          >Cadastrar aluno</a>
+          <a
+            routerLink="/professores/novo"
+            routerLinkActive="active"
+            #rlaProfessor="routerLinkActive"
+            [attr.aria-current]="rlaProfessor.isActive ? 'page' : null"
+          >Cadastrar professor</a>
+          <a
+            routerLink="/estrutura-academica"
+            routerLinkActive="active"
+            #rlaAcademico="routerLinkActive"
+            [attr.aria-current]="rlaAcademico.isActive ? 'page' : null"
+          >Anos e turmas</a>
+          <a
+            routerLink="/tutorial"
+            routerLinkActive="active"
+            #rlaTutorial="routerLinkActive"
+            [attr.aria-current]="rlaTutorial.isActive ? 'page' : null"
+          >Tutorial</a>
         </nav>
       } @else if (authService.perfil()?.tipo === 'professor') {
         <nav class="main-nav" aria-label="Navegação principal">

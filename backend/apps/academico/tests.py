@@ -19,8 +19,9 @@ class AcademicoApiTests(APITestCase):
         self.ano = AnoLetivo.objects.create(escola=self.escola, ano=2026)
         self.turma = Turma.objects.create(
             ano_letivo=self.ano,
-            nome="6º A",
-            serie="6º ano",
+            nome="A",
+            nivel_ensino=Turma.NivelEnsino.FUNDAMENTAL,
+            serie=6,
             turno=Turma.Turno.MANHA,
         )
         self.client.force_authenticate(user=self.escola_user)

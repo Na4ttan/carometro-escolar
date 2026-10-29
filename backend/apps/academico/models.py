@@ -84,27 +84,47 @@ class Turma(models.Model):
         NOITE = "noite", "Noite"
         INTEGRAL = "integral", "Integral"
 
+    class NivelEnsino(models.TextChoices):
+        FUNDAMENTAL = "fundamental", "Ensino Fundamental"
+        MEDIO = "medio", "Ensino Médio"
+
     ano_letivo = models.ForeignKey(
         AnoLetivo,
         on_delete=models.CASCADE,
         related_name="turmas",
         help_text="Ano letivo associado à turma",
     )
-    nome = models.CharField(max_length=100, help_text="Identificação da turma (ex: 6º A, 1º B)")
-    serie = models.CharField(max_length=100, help_text="Série ou etapa escolar (ex: 6º ano)")
+    nivel_ensino = models.CharField(
+        max_length=12,
+        choices=NivelEnsino.choices,
+        default=NivelEnsino.FUNDAMENTAL,
+        help_text="Etapa escolar da turma",
+    )
+    serie = models.PositiveSmallIntegerField(help_text="Número da série dentro da etapa escolar")
+    nome = models.CharField(max_length=100, help_text="Identificação da turma (ex: A, B, C)")
     turno = models.CharField(max_length=10, choices=Turno.choices, help_text="Turno das aulas")
     sala = models.CharField(max_length=50, blank=True, null=True, help_text="Número ou nome da sala de aula")
     ativo = models.BooleanField(default=True, help_text="Turma ativa para matrículas e carômetro")
 
     def __str__(self):
-        return f"{self.nome} - {self.ano_letivo.ano}"
+        etapa = "EM" if self.nivel_ensino == self.NivelEnsino.MEDIO else "EF"
+        return f"{self.serie}º {etapa} {self.nome} - {self.ano_letivo.ano}"
 
     class Meta:
         db_table = "core_turma"
         verbose_name = "Turma"
         verbose_name_plural = "Turmas"
-        ordering = ["serie", "nome"]
+        ordering = ["nivel_ensino", "serie", "nome"]
         constraints = [
-            # Garante que não haja duas turmas com mesmo nome no mesmo ano letivo
-            models.UniqueConstraint(fields=["ano_letivo", "nome"], name="turma_unica_por_ano")
+            models.UniqueConstraint(
+                fields=["ano_letivo", "nivel_ensino", "serie", "nome"],
+                name="turma_unica_por_serie",
+            ),
+            models.CheckConstraint(
+                condition=(
+                    models.Q(nivel_ensino="fundamental", serie__gte=1, serie__lte=9)
+                    | models.Q(nivel_ensino="medio", serie__gte=1, serie__lte=3)
+                ),
+                name="serie_valida_por_nivel_ensino",
+            ),
         ]

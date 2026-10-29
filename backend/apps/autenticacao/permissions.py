@@ -47,3 +47,23 @@ class PodeVisualizarOuEscolaCria(BasePermission):
 
         # Criação/edição exige perfil da escola
         return hasattr(user, "escola") and user.escola.ativo
+
+
+class PodeEditarAluno(BasePermission):
+    """Escola e professores ativos podem editar; exclusão é exclusiva da escola."""
+
+    message = "Apenas a escola ou um professor ativo pode gerenciar alunos."
+
+    def has_permission(self, request, view):
+        user = request.user
+        if not user.is_authenticated:
+            return False
+        escola_ativa = hasattr(user, "escola") and user.escola.ativo
+        professor_ativo = hasattr(user, "professor") and user.professor.ativo
+        return escola_ativa or professor_ativo
+
+    def has_object_permission(self, request, view, obj):
+        user = request.user
+        if request.method == "DELETE":
+            return hasattr(user, "escola") and user.escola.ativo
+        return True

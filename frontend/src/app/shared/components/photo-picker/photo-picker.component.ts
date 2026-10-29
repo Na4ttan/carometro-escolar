@@ -18,19 +18,28 @@ import {
 export class PhotoPickerComponent implements OnDestroy {
   readonly label = input.required<string>();
   readonly photo = input<File | null>(null);
+  readonly existingPhoto = input<string | null>(null);
   readonly photoChange = output<File | null>();
+  readonly photoRemoved = output<void>();
 
   private cameraVideo = viewChild.required<ElementRef<HTMLVideoElement>>('cameraVideo');
   private captureCanvas = viewChild.required<ElementRef<HTMLCanvasElement>>('captureCanvas');
 
   preview = signal<string | null>(null);
+  hideExistingPhoto = signal(false);
   error = signal('');
   cameraOpen = signal(false);
   private cameraStream: MediaStream | null = null;
   private destroyed = false;
+  private previousExistingPhoto: string | null = null;
 
   constructor() {
     effect(() => {
+      const existingPhoto = this.existingPhoto();
+      if (existingPhoto !== this.previousExistingPhoto) {
+        this.previousExistingPhoto = existingPhoto;
+        this.hideExistingPhoto.set(false);
+      }
       if (this.photo() === null) {
         this.clearPreview();
         this.error.set('');
@@ -137,9 +146,19 @@ export class PhotoPickerComponent implements OnDestroy {
 
     this.fecharCamera();
     this.clearPreview();
+    this.hideExistingPhoto.set(false);
     this.error.set('');
     this.preview.set(URL.createObjectURL(photo));
     this.photoChange.emit(photo);
+  }
+
+  removerFoto(): void {
+    this.fecharCamera();
+    this.clearPreview();
+    this.hideExistingPhoto.set(true);
+    this.error.set('');
+    this.photoChange.emit(null);
+    this.photoRemoved.emit();
   }
 
   private clearPreview(): void {

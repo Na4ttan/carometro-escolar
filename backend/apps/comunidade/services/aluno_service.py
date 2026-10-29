@@ -7,9 +7,13 @@ Centraliza toda a lógica de negócio cadastral de alunos:
 3. Enfileiramento do processamento facial inteligente em segundo plano.
 """
 
+import re
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.db.models import F, Value
+from django.db.models.functions import Replace, Trim
 
 from apps.academico.models import Turma
 from apps.comunidade.models import Aluno, Matricula
@@ -22,6 +26,13 @@ class AlunoService:
     Isola os Models e Views do acoplamento direto com validações complexas.
     """
 
+    @staticmethod
+    def normalizar_matricula(matricula):
+        """Remove pontos e hífens usados apenas para formatar a matrícula."""
+        if matricula is None:
+            return None
+        return re.sub(r"[.-]", "", str(matricula)).strip()
+
     @classmethod
     def validar_matricula(cls, matricula, aluno_id=None):
         """
@@ -30,10 +41,18 @@ class AlunoService:
         """
         if not matricula:
             return
-        query = Aluno.objects.filter(matricula=matricula)
+        matricula_normalizada = cls.normalizar_matricula(matricula)
+        query = Aluno.objects.exclude(matricula__isnull=True).exclude(matricula="")
         if aluno_id:
             query = query.exclude(id=aluno_id)
-        if query.exists():
+        matricula_sem_formatacao = Replace(
+            Replace(F("matricula"), Value("."), Value("")),
+            Value("-"),
+            Value(""),
+        )
+        if query.annotate(
+            matricula_normalizada=Trim(matricula_sem_formatacao)
+        ).filter(matricula_normalizada=matricula_normalizada).exists():
             raise ValidationError({"matricula": "Já existe um aluno cadastrado com este número de matrícula."})
 
     @classmethod
@@ -72,7 +91,9 @@ class AlunoService:
            em background worker, respondendo imediatamente a requisição HTTP.
         """
         turma_obj = cls.validar_turma(turma, escola=escola)
-        matricula_val = dados.get("matricula")
+        matricula_val = cls.normalizar_matricula(dados.get("matricula") or "")
+        if not matricula_val:
+            raise ValidationError({"matricula": "A matrícula do aluno é obrigatória."})
         cls.validar_matricula(matricula_val)
 
         foto = dados.get("foto")
@@ -80,7 +101,7 @@ class AlunoService:
             nome_completo=dados.get("nome_completo"),
             nome_social=dados.get("nome_social") or "",
             data_nascimento=dados.get("data_nascimento"),
-            matricula=matricula_val or None,
+            matricula=matricula_val,
             foto=foto,
             ativo=dados.get("ativo", True),
         )

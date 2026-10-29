@@ -11,6 +11,8 @@ export class AlunoService {
   listar(params?: {
     search?: string;
     turma_id?: number | string;
+    ano_letivo?: number | string;
+    incluir_arquivados?: boolean;
     page?: number;
     page_size?: number;
     sem_paginacao?: boolean;
@@ -18,6 +20,8 @@ export class AlunoService {
     let httpParams = new HttpParams();
     if (params?.search) httpParams = httpParams.set('search', params.search);
     if (params?.turma_id) httpParams = httpParams.set('turma', params.turma_id.toString());
+    if (params?.ano_letivo) httpParams = httpParams.set('ano_letivo', params.ano_letivo.toString());
+    if (params?.incluir_arquivados) httpParams = httpParams.set('incluir_arquivados', 'true');
     if (params?.page) httpParams = httpParams.set('page', params.page.toString());
     if (params?.page_size) httpParams = httpParams.set('page_size', params.page_size.toString());
     if (params?.sem_paginacao) httpParams = httpParams.set('sem_paginacao', 'true');
@@ -29,5 +33,33 @@ export class AlunoService {
 
   cadastrar(formData: FormData) {
     return this.http.post<Aluno>(`${environment.apiUrl}/alunos/`, formData);
+  }
+
+  importarCsv(arquivo: File, nivelEnsino: 'fundamental' | 'medio') {
+    const formData = new FormData();
+    formData.append('arquivo', arquivo);
+    formData.append('nivel_ensino', nivelEnsino);
+    return this.http.post<{
+      criados: number;
+      atualizados: number;
+      processados: number;
+      erros: { linha: number; mensagem: string }[];
+    }>(`${environment.apiUrl}/alunos/importar-csv/`, formData);
+  }
+
+  atualizar(id: number, dados: Record<string, unknown> | FormData) {
+    return this.http.patch<Aluno>(`${environment.apiUrl}/alunos/${id}/`, dados);
+  }
+
+  arquivar(id: number) {
+    return this.http.post<Aluno>(`${environment.apiUrl}/alunos/${id}/arquivar/`, {});
+  }
+
+  restaurar(id: number) {
+    return this.http.post<Aluno>(`${environment.apiUrl}/alunos/${id}/restaurar/`, {});
+  }
+
+  excluir(id: number) {
+    return this.http.delete(`${environment.apiUrl}/alunos/${id}/`);
   }
 }

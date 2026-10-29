@@ -1,66 +1,90 @@
 <section class="panel">
-  <form (ngSubmit)="cadastrar()">
-    <section class="panel">
-      <div class="panel-heading">
-        <span class="icon-badge icon-orange">P</span>
-        <div>
-          <span class="eyebrow">EQUIPE ESCOLAR</span>
-          <h2>Cadastrar professor</h2>
-        </div>
-      </div>
-      <form (ngSubmit)="cadastrar()">
-        <label>
-          Nome completo
-          <input name="nome" type="text" [(ngModel)]="form.nome_completo" maxlength="200"
-          placeholder="Digite o nome completo"
-          required />
-        </label>
-        <div class="form-row">
-          <label>
-            E-mail (login de acesso)
-            <input name="email" type="email" [(ngModel)]="form.email" placeholder="professor@escola.com" required />
-          </label>
-          <label>
-            Matrícula funcional (opcional)
-            <input name="matricula" type="text" [(ngModel)]="form.matricula_funcional"
-            maxlength="50"
-            placeholder="Digite a matrícula funcional" />
-          </label>
-        </div>
-        <div class="form-row">
-          <label>
-            Senha de acesso (mínimo 6 caracteres)
-            <input name="senha" type="password" [(ngModel)]="form.senha" minlength="6"
-              autocomplete="new-password" placeholder="Defina a senha inicial" required />
-          </label>
-          <label>
-            Confirmar senha
-            <input name="confirmacao" type="password" [(ngModel)]="form.confirmacao_senha" minlength="6"
-              autocomplete="new-password" placeholder="Repita a senha inicial" required />
-          </label>
-        </div>
-        <app-photo-picker label="Foto do professor (obrigatória)" [(photo)]="foto" />
-        <fieldset>
-          <legend>Turmas do professor</legend>
-          <div class="class-options">
-            @for (turma of turmas(); track turma.id) {
-              <label class="checkbox-option">
-                <input type="checkbox"
-                  [checked]="turmasSelecionadas.includes(turma.id)"
-                  (change)="onTurmaChange(turma.id, $event)"
-                />
-                <span>{{ turma.serie }} · {{ turma.nome }} · {{ turma.ano }}</span>
-              </label>
-            } @empty {
-              <span class="empty-state">Nenhuma turma ativa disponível.</span>
+  <div class="panel-heading">
+    <span class="icon-badge icon-orange">P</span>
+    <div>
+      <span class="eyebrow">EQUIPE ESCOLAR</span>
+      <h2>Cadastrar professor</h2>
+    </div>
+  </div>
+  <form #cadastroForm="ngForm" (ngSubmit)="cadastrar(cadastroForm)">
+    <label>
+      Nome completo
+      <input name="nome" type="text" [(ngModel)]="form.nome_completo" maxlength="200"
+        placeholder="Digite o nome completo" required />
+    </label>
+    <div class="form-row">
+      <label>
+        E-mail (login de acesso)
+        <input name="email" type="email" [(ngModel)]="form.email" placeholder="professor@escola.com" required />
+      </label>
+      <label>
+        Matrícula funcional (opcional)
+        <input name="matricula" type="text" [(ngModel)]="form.matricula_funcional" maxlength="50"
+          placeholder="Digite a matrícula funcional" />
+      </label>
+    </div>
+    <div class="form-row">
+      <label>
+        Senha de acesso (mínimo 6 caracteres)
+        <div class="input-senha">
+          <input name="senha" [type]="mostrarSenha() ? 'text' : 'password'" [(ngModel)]="form.senha" minlength="6"
+            autocomplete="new-password" placeholder="Defina a senha inicial" required />
+          <button type="button" class="btn-olho" (click)="mostrarSenha.set(!mostrarSenha())" [attr.aria-label]="mostrarSenha() ? 'Ocultar senha' : 'Mostrar senha'">
+            @if (mostrarSenha()) {
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+            } @else {
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
             }
-          </div>
-        </fieldset>
-        @if (erro()) {
-          <div class="notice notice-error" role="alert">{{ erro() }}</div>
+          </button>
+        </div>
+      </label>
+      <label>
+        Confirmar senha
+        <div class="input-senha">
+          <input name="confirmacao" [type]="mostrarConfirmacao() ? 'text' : 'password'" [(ngModel)]="form.confirmacao_senha" minlength="6"
+            autocomplete="new-password" placeholder="Repita a senha inicial" required />
+          <button type="button" class="btn-olho" (click)="mostrarConfirmacao.set(!mostrarConfirmacao())" [attr.aria-label]="mostrarConfirmacao() ? 'Ocultar senha' : 'Mostrar senha'">
+            @if (mostrarConfirmacao()) {
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+            } @else {
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            }
+          </button>
+        </div>
+      </label>
+    </div>
+    <app-photo-picker label="Foto do professor (obrigatória)" [(photo)]="foto" />
+    <fieldset>
+      <legend>Turmas do professor</legend>
+      <div class="class-options">
+        @for (turma of turmas(); track turma.id) {
+          <label class="checkbox-option">
+            <input type="checkbox" [checked]="turmasSelecionadas.includes(turma.id)"
+              (change)="onTurmaChange(turma.id, $event)" />
+            <span>{{ turma.serie }}ª {{ turma.nivel_ensino === 'medio' ? 'EM' : 'EF' }} · Turma {{ turma.nome }} · {{ turma.ano }}</span>
+          </label>
+        } @empty {
+          <span class="empty-state">Nenhuma turma ativa disponível.</span>
         }
-        <button class="button button-primary" type="submit" [disabled]="turmas().length === 0">
-          Cadastrar professor
-        </button>
-      </form>
-    </section>
+      </div>
+    </fieldset>
+    @if (erro()) {
+      <div class="notice notice-error" role="alert">{{ erro() }}</div>
+    }
+    <button class="button button-primary" type="submit" [disabled]="turmas().length === 0">
+      Cadastrar professor
+    </button>
+  </form>
+</section>

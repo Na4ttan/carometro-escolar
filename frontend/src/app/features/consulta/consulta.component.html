@@ -21,6 +21,24 @@
         </select>
       </label>
     }
+    @if (perfil()) {
+      <label>
+        Ano letivo
+        <select
+          name="consultaAnoLetivo"
+          [ngModel]="anoLetivoId()"
+          (ngModelChange)="selecionarAnoLetivo($event)"
+          [disabled]="anosLetivos().length === 0"
+        >
+          <option value="" disabled>
+            {{ perfil()?.tipo === 'professor' ? 'Nenhum ano atribuído' : 'Selecione um ano letivo' }}
+          </option>
+          @for (ano of anosLetivos(); track ano.id) {
+            <option [value]="ano.id">{{ ano.ano }}{{ ano.ativo ? ' · Vigente' : '' }}</option>
+          }
+        </select>
+      </label>
+    }
     <label>
       Nome ou matrícula
       <input
@@ -36,12 +54,18 @@
       <select name="consultaTurma" [ngModel]="turmaId()" (ngModelChange)="turmaId.set($event)">
         <option value="">Todas as turmas</option>
         @for (turma of turmas(); track turma.id) {
-          <option [value]="turma.id">{{ turma.serie }} · {{ turma.nome }} · {{ turma.ano }}</option>
+          <option [value]="turma.id">{{ turma.serie }}ª {{ turma.nivel_ensino === 'medio' ? 'EM' : 'EF' }} · Turma {{ turma.nome }} · {{ turma.ano }}</option>
         }
       </select>
     </label>
+    @if (perfil()?.tipo === 'escola' || perfil()?.tipo === 'professor') {
+      <label class="archive-filter">
+        <input type="checkbox" [ngModel]="incluirArquivados()" (ngModelChange)="alternarArquivados($event)" />
+        Incluir cadastros arquivados
+      </label>
+    }
   </div>
-
+  <div class="result-show">
   @if (tipoConsulta() !== 'professores') {
     <section class="results-section">
       <div class="list-heading">
@@ -64,6 +88,7 @@
               }
               <div class="result-details">
                 <h3>{{ aluno.nome_social || aluno.nome_completo }}</h3>
+                @if (!aluno.ativo) { <span class="archive-badge">Arquivado</span> }
                 @if (aluno.nome_social) {
                   <span>{{ aluno.nome_completo }}</span>
                 }
@@ -72,6 +97,11 @@
                   <small>Matrícula: {{ aluno.matricula }}</small>
                 }
               </div>
+              @if (perfil()?.tipo === 'escola' || perfil()?.tipo === 'professor') {
+                <div class="card-actions">
+                  <button class="button button-quiet" type="button" (click)="editarAluno(aluno)">{{ aluno.ativo ? 'Editar' : 'Gerenciar' }}</button>
+                </div>
+              }
             </article>
           }
         </div>
@@ -103,11 +133,15 @@
               }
               <div class="result-details">
                 <h3>{{ professor.nome_completo }}</h3>
+                @if (!professor.ativo) { <span class="archive-badge">Arquivado</span> }
                 @if (professor.email) { <small>{{ professor.email }}</small> }
                 <small>{{ professor.turmas_nomes?.join(', ') || 'Sem turma' }}</small>
                 @if (professor.matricula_funcional) {
                   <small>Matrícula: {{ professor.matricula_funcional }}</small>
                 }
+              </div>
+              <div class="card-actions">
+                <button class="button button-quiet" type="button" (click)="editarProfessor(professor)">{{ professor.ativo ? 'Editar' : 'Gerenciar' }}</button>
               </div>
             </article>
           }
@@ -117,4 +151,93 @@
       }
     </section>
   }
-</section>
+</div>
+@if (alunoEmEdicao(); as aluno) {
+  <div class="edit-backdrop" role="presentation" (click)="fecharEdicao()">
+    <section class="panel edit-dialog" role="dialog" aria-modal="true" aria-labelledby="edit-aluno-title" (click)="$event.stopPropagation()">
+      <div class="list-heading">
+        <div><span class="eyebrow">ESTUDANTE</span><h2 id="edit-aluno-title">Editar aluno</h2></div>
+        <button class="button button-quiet" type="button" (click)="fecharEdicao()">Fechar</button>
+      </div>
+      <form (ngSubmit)="salvarAluno()">
+        <label>Nome completo<input name="editAlunoNome" [(ngModel)]="alunoEdicao.nome_completo" required /></label>
+        <div class="form-row">
+          <label>Nome social<input name="editAlunoNomeSocial" [(ngModel)]="alunoEdicao.nome_social" /></label>
+          <label>Data de nascimento<input name="editAlunoNascimento" type="date" [(ngModel)]="alunoEdicao.data_nascimento" /></label>
+        </div>
+        <div class="form-row">
+          <label>Matrícula<input name="editAlunoMatricula" [(ngModel)]="alunoEdicao.matricula" /></label>
+          <label>Turma<select name="editAlunoTurma" [(ngModel)]="alunoEdicao.turma" required>
+            @for (turma of turmas(); track turma.id) {
+              @if (turma.ativo) {
+                <option [value]="turma.id">{{ turma.serie }}ª {{ turma.nivel_ensino === 'medio' ? 'EM' : 'EF' }} · Turma {{ turma.nome }}</option>
+              }
+            }
+          </select></label>
+        </div>
+        <app-photo-picker
+          label="Foto do aluno (opcional)"
+          [existingPhoto]="aluno.foto"
+          [photo]="fotoAlunoEdicao()"
+          (photoChange)="atualizarFotoAlunoEdicao($event)"
+          (photoRemoved)="removerFotoAlunoEdicao.set(true)"
+        />
+        <p class="tip">A foto atual será mantida se nenhuma alteração for feita. Alterar a turma atualiza a matrícula e preserva o histórico anterior.</p>
+        @if (erroEdicao()) { <div class="notice notice-error" role="alert">{{ erroEdicao() }}</div> }
+        <div class="dialog-actions">
+          @if (aluno.ativo) {
+            <button class="button button-quiet" type="button" (click)="arquivarAluno(aluno)">Arquivar aluno</button>
+          } @else {
+            <button class="button button-quiet" type="button" (click)="restaurarAluno(aluno)">Restaurar aluno</button>
+          }
+          @if (perfil()?.tipo === 'escola') {
+            <button class="button button-danger-quiet" type="button" (click)="excluirAluno(aluno)">Excluir permanentemente</button>
+          }
+          <button class="button button-quiet" type="button" (click)="fecharEdicao()">Cancelar</button>
+          <button class="button button-primary" type="submit" [disabled]="salvandoEdicao()">Salvar alterações</button>
+        </div>
+      </form>
+    </section>
+  </div>
+}
+
+@if (professorEmEdicao(); as professor) {
+  <div class="edit-backdrop" role="presentation" (click)="fecharEdicao()">
+    <section class="panel edit-dialog" role="dialog" aria-modal="true" aria-labelledby="edit-professor-title" (click)="$event.stopPropagation()">
+      <div class="list-heading">
+        <div><span class="eyebrow">EQUIPE ESCOLAR</span><h2 id="edit-professor-title">Editar professor</h2></div>
+        <button class="button button-quiet" type="button" (click)="fecharEdicao()">Fechar</button>
+      </div>
+      <form (ngSubmit)="salvarProfessor()">
+        <label>Nome completo<input name="editProfessorNome" [(ngModel)]="professorEdicao.nome_completo" required /></label>
+        <label>E-mail de acesso<input name="editProfessorEmail" type="email" [(ngModel)]="professorEdicao.email" required /></label>
+        <label>Matrícula funcional<input name="editProfessorMatricula" [(ngModel)]="professorEdicao.matricula_funcional" /></label>
+        <fieldset>
+          <legend>Turmas atribuídas</legend>
+          <div class="edit-class-options">
+            @for (turma of turmasDisponiveisEdicao(); track turma.id) {
+              <label class="archive-filter">
+                <input type="checkbox" [checked]="turmasSelecionadasEdicao().includes(turma.id)" (change)="alternarTurmaProfessor(turma.id, $event)" />
+                {{ turma.serie }}ª {{ turma.nivel_ensino === 'medio' ? 'EM' : 'EF' }} · Turma {{ turma.nome }} · {{ turma.ano }}
+              </label>
+            } @empty {
+              <span class="empty-state">Nenhuma turma ativa disponível.</span>
+            }
+          </div>
+        </fieldset>
+        <p class="tip">A foto e a senha serão mantidas. Vínculos com turmas já arquivadas também são preservados. Para redefinir a senha, use o Django Admin conforme o tutorial.</p>
+        @if (erroEdicao()) { <div class="notice notice-error" role="alert">{{ erroEdicao() }}</div> }
+        <div class="dialog-actions">
+          @if (professor.ativo) {
+            <button class="button button-quiet" type="button" (click)="arquivarProfessor(professor)">Arquivar professor</button>
+          } @else {
+            <button class="button button-quiet" type="button" (click)="restaurarProfessor(professor)">Restaurar professor</button>
+          }
+          <button class="button button-danger-quiet" type="button" (click)="excluirProfessor(professor)">Excluir permanentemente</button>
+          <button class="button button-quiet" type="button" (click)="fecharEdicao()">Cancelar</button>
+          <button class="button button-primary" type="submit" [disabled]="salvandoEdicao()">Salvar alterações</button>
+        </div>
+      </form>
+    </section>
+  </div>
+}

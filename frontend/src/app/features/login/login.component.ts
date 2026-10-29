@@ -17,6 +17,7 @@ export class LoginComponent {
   username = signal('');
   password = signal('');
   erro = signal('');
+  mostrarSenha = signal(false);
 
   async entrar() {
     this.authService.login(this.username(), this.password()).subscribe({
@@ -25,7 +26,7 @@ export class LoginComponent {
         this.authService.carregarPerfil().subscribe({
           next: (perfil) => {
             this.authService.perfil.set(perfil);
-            this.router.navigate([perfil.tipo === 'professor' ? '/consulta' : '/inicio']);
+            this.router.navigate(['/consulta']);
           },
           error: () => this.erro.set('Não foi possível carregar o perfil.')
         });
