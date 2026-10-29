@@ -89,7 +89,11 @@
   align-items: center;
   gap: 7px;
   color: var(--text-secondary);
-  font-size: 11px;
+  font-size: 15px;
+}
+
+.checkbox {
+  width: 15px;
 }
 
 .class-actions {
@@ -164,4 +168,8 @@
   .academic-grid {
     grid-template-columns: 1fr;
   }
+}
+
+#ano-turma {
+  margin-top: 0px;
 }

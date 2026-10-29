@@ -16,3 +16,16 @@
 .notice-success {
   color: #166534;
 }
+
+.select-turma {
+  height: 35px;
+}
+
+.input-csv {
+  margin-top: 15px;
+}
+
+.field-csv {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}

@@ -22,6 +22,8 @@ export class ProfessorFormComponent implements OnInit {
   foto: File | null = null;
   turmasSelecionadas: number[] = [];
   erro = signal('');
+  mostrarSenha = signal(false);
+  mostrarConfirmacao = signal(false);
   form = {
     nome_completo: '', email: '',
     senha: '', confirmacao_senha: '', matricula_funcional: '',

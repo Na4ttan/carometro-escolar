@@ -17,6 +17,7 @@ export class LoginComponent {
   username = signal('');
   password = signal('');
   erro = signal('');
+  mostrarSenha = signal(false);
 
   async entrar() {
     this.authService.login(this.username(), this.password()).subscribe({

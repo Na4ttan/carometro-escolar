@@ -9,9 +9,7 @@
     <div class="notice notice-success" role="status">{{ sucesso() }}</div>
   }
 
-  <div class="academic-grid">
-    <section class="panel">
-      <div class="active-year-selector">
+  <div class="active-year-selector">
         <label>
           Ano letivo vigente
           <select
@@ -34,6 +32,10 @@
           <div class="notice notice-error" role="alert">{{ erroAtivarAno() }}</div>
         }
       </div>
+
+  <div class="academic-grid">
+    <section class="panel" id="ano-turma">
+
       <div class="panel-heading">
         <span class="icon-badge icon-blue">A</span>
         <div>
@@ -67,7 +69,7 @@
       </form>
     </section>
 
-    <section class="panel">
+    <section class="panel" id="ano-turma">
       <div class="panel-heading">
         <span class="icon-badge icon-orange">T</span>
         <div>
@@ -143,7 +145,7 @@
           <h2>Turmas de {{ anoSelecionadoLabel() }}</h2>
         </div>
         <div class="list-actions">
-          <label class="archive-toggle"><input type="checkbox" [ngModel]="incluirArquivadas()" (ngModelChange)="alternarArquivadas($event)" /> Incluir arquivadas</label>
+          <label class="archive-toggle"><input class="checkbox" type="checkbox" [ngModel]="incluirArquivadas()" (ngModelChange)="alternarArquivadas($event)" /> Incluir arquivadas</label>
           <span class="count">{{ turmas().length }}</span>
         </div>
       </div>

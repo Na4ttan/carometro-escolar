@@ -65,7 +65,7 @@
       </label>
     }
   </div>
-
+  <div class="result-show">
   @if (tipoConsulta() !== 'professores') {
     <section class="results-section">
       <div class="list-heading">
@@ -151,8 +151,7 @@
       }
     </section>
   }
-</section>
-
+</div>
 @if (alunoEmEdicao(); as aluno) {
   <div class="edit-backdrop" role="presentation" (click)="fecharEdicao()">
     <section class="panel edit-dialog" role="dialog" aria-modal="true" aria-labelledby="edit-aluno-title" (click)="$event.stopPropagation()">

@@ -21,7 +21,6 @@
 }
 
 .search-field {
-  margin-top: 12px;
 }
 
 .search-panel {
@@ -179,4 +178,9 @@
 .result-details small {
   color: var(--text-muted);
   font-size: 11px;
+}
+.result-show {
+  display: flex;
+  gap: 100px;
+  justify-content: center;
 }

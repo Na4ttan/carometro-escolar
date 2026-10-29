@@ -30,9 +30,9 @@
           placeholder="Ex.: 998.444.222.111" required />
         <small class="field-hint">Pontos e hífens serão removidos ao salvar.</small>
       </label>
-      <label>
+      <label class="select-turma">
         Turma
-        <select name="turma" [(ngModel)]="form.turma" required>
+        <select class="select-turma" name="turma" [(ngModel)]="form.turma" required>
           <option value="" disabled>Selecione uma turma</option>
           @for (turma of turmas(); track turma.id) {
             <option [value]="turma.id">{{ turma.serie }}ª {{ turma.nivel_ensino === 'medio' ? 'EM' : 'EF' }} · Turma {{ turma.nome }} · {{ turma.ano }}</option>
@@ -63,7 +63,9 @@
     Alunos já cadastrados pela matrícula terão nome e turma atualizados. Turmas ainda não cadastradas serão criadas automaticamente.
   </p>
   <label>
-    Nível de ensino <span aria-hidden="true">*</span>
+    <div>
+      <span>Nível de ensino </span><span aria-hidden="true">*</span>
+    </div>
     <select name="nivelEnsinoImportacao" [ngModel]="nivelEnsinoImportacao()"
       (ngModelChange)="nivelEnsinoImportacao.set($event)" required>
       <option value="" disabled>Selecione o nível de ensino</option>
@@ -71,9 +73,9 @@
       <option value="medio">Ensino Médio</option>
     </select>
   </label>
-  <label>
+  <label class="input-csv">
     Arquivo CSV
-    <input type="file" accept=".csv,text/csv" (change)="importarCsv($event)"
+    <input class="field-csv" type="file" accept=".csv,text/csv" (change)="importarCsv($event)"
       [disabled]="importando() || !nivelEnsinoImportacao()" />
   </label>
   @if (importando()) {
