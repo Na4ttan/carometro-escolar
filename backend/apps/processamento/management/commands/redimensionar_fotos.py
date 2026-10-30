@@ -43,7 +43,7 @@ class Command(BaseCommand):
                 processado = ImagemService.processar_foto(aluno.foto, size=size, force=True)
                 if processado:
                     aluno._skip_async = True
-                    aluno.save(update_fields=["foto", "atualizado_em"])
+                    aluno.save(update_fields=["foto", "foto_base64", "atualizado_em"])
                     total_alunos += 1
                     self.stdout.write(f"  [Aluno] {aluno.nome_completo}: redimensionado com sucesso.")
 
@@ -53,7 +53,7 @@ class Command(BaseCommand):
                 processado = ImagemService.processar_foto(prof.foto, size=size, force=True)
                 if processado:
                     prof._skip_async = True
-                    prof.save(update_fields=["foto", "atualizado_em"])
+                    prof.save(update_fields=["foto", "foto_base64", "atualizado_em"])
                     total_professores += 1
                     self.stdout.write(f"  [Professor] {prof.nome_completo}: redimensionado com sucesso.")
 

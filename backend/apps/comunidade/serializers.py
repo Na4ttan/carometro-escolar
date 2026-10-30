@@ -167,6 +167,7 @@ class AlunoSerializer(serializers.ModelSerializer):
         if remover_foto:
             validated_data.pop("foto", None)
             instance.foto = None
+            instance.foto_base64 = None
         instance._skip_async = "foto" not in validated_data
         for campo, valor in validated_data.items():
             setattr(instance, campo, valor)
@@ -193,6 +194,12 @@ class AlunoSerializer(serializers.ModelSerializer):
                 else:
                     Matricula.objects.create(aluno=instance, turma=turma)
         return instance
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if getattr(instance, "foto_base64", None):
+            data["foto"] = instance.foto_base64
+        return data
 
 
 class ProfessorSerializer(serializers.ModelSerializer):
@@ -347,3 +354,9 @@ class ProfessorSerializer(serializers.ModelSerializer):
             turmas_arquivadas = list(instance.turmas.filter(ativo=False))
             instance.turmas.set([*turmas, *turmas_arquivadas])
         return instance
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if getattr(instance, "foto_base64", None):
+            data["foto"] = instance.foto_base64
+        return data

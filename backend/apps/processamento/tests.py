@@ -48,6 +48,8 @@ class AsyncWorkerTests(TransactionTestCase):
         aluno.refresh_from_db()
         img = Image.open(aluno.foto.path)
         self.assertEqual(img.size, (500, 500))
+        self.assertIsNotNone(aluno.foto_base64)
+        self.assertTrue(aluno.foto_base64.startswith("data:image/jpeg;base64,"))
 
     def test_processamento_aluno_assincrono_em_thread_pool(self):
         conteudo = BytesIO()

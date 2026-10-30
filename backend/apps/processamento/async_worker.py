@@ -39,7 +39,7 @@ def _processar_foto_aluno(aluno_id):
         if sucesso:
             # Sinaliza _skip_async para evitar que o model.save() enfileire outra tarefa recursivamente
             aluno._skip_async = True
-            aluno.save(update_fields=["foto", "atualizado_em"])
+            aluno.save(update_fields=["foto", "foto_base64", "atualizado_em"])
             logger.info(f"[Async] Foto do aluno '{aluno.nome_completo}' processada com sucesso.")
             return True
     except Exception as exc:
@@ -66,7 +66,7 @@ def _processar_foto_professor(professor_id):
         if sucesso:
             # Evita recursão infinita no save
             prof._skip_async = True
-            prof.save(update_fields=["foto", "atualizado_em"])
+            prof.save(update_fields=["foto", "foto_base64", "atualizado_em"])
             logger.info(f"[Async] Foto do professor '{prof.nome_completo}' processada com sucesso.")
             return True
     except Exception as exc:

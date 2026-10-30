@@ -114,6 +114,9 @@ class ProfessorService:
         user.set_password(senha)
         user.save()
         professor.usuario = user
+        if foto:
+            from apps.processamento.services.imagem_service import ImagemService
+            professor.foto_base64 = ImagemService.arquivo_para_data_uri(foto)
         professor._skip_async = True
         professor.save()
 

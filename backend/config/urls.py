@@ -8,6 +8,8 @@ Este arquivo centraliza o roteamento de toda a aplicação:
 4. /*      : Roteamento SPA (Single Page Application) servindo a distribuição Angular compilada.
 """
 
+import base64
+import os
 from pathlib import Path
 from django.contrib import admin
 from django.conf import settings
@@ -17,6 +19,35 @@ from django.http import HttpResponse
 
 # Caminho absoluto para a pasta onde o build de produção do Angular é gerado ('dist/frontend/browser')
 FRONTEND_DIR = settings.BASE_DIR.parent / "frontend" / "dist" / "frontend" / "browser"
+
+
+def serve_media(request, path=""):
+    """
+    Serve arquivos de mídia do disco local (MEDIA_ROOT) ou, caso o disco efêmero
+    (ex: Render Free) tenha sido limpo, recupera a imagem diretamente da coluna
+    foto_base64 do PostgreSQL.
+    """
+    full_path = os.path.join(settings.MEDIA_ROOT, path)
+    if os.path.isfile(full_path):
+        return serve(request, path, document_root=settings.MEDIA_ROOT)
+
+    try:
+        from apps.comunidade.models import Aluno, Professor
+
+        obj = (
+            Aluno.objects.filter(foto=path).only("foto_base64").first()
+            or Professor.objects.filter(foto=path).only("foto_base64").first()
+        )
+        if obj and obj.foto_base64 and "," in obj.foto_base64:
+            header, b64_data = obj.foto_base64.split(",", 1)
+            content_type = "image/jpeg"
+            if ";" in header and ":" in header:
+                content_type = header.split(":", 1)[1].split(";", 1)[0]
+            return HttpResponse(base64.b64decode(b64_data), content_type=content_type)
+    except Exception:
+        pass
+
+    return serve(request, path, document_root=settings.MEDIA_ROOT)
 
 
 def serve_frontend(request, path=""):
@@ -52,8 +83,7 @@ urlpatterns = [
 urlpatterns += [
     re_path(
         r"^media/(?P<path>.*)$",
-        serve,
-        {"document_root": settings.MEDIA_ROOT},
+        serve_media,
     ),
 ]
 
