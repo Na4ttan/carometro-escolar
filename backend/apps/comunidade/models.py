@@ -34,6 +34,12 @@ class Aluno(models.Model):
         null=True,
         help_text="Foto do aluno, salva em backend/media/alunos/",
     )
+    foto_base64 = models.TextField(
+        blank=True,
+        null=True,
+        editable=False,
+        help_text="Foto processada em Data URI (Base64) armazenada no banco de dados",
+    )
     ativo = models.BooleanField(default=True, help_text="Indica se o aluno está ativo na instituição")
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
@@ -43,8 +49,15 @@ class Aluno(models.Model):
         Sobrescreve o salvamento padrão:
         - Persiste o registro no banco e grava o arquivo de imagem no disco.
         - Se houver foto e não estiver em reprocessamento interno (_skip_async),
-          enfileira a tarefa assíncrona de visão computacional (OpenCV 500x500).
+          gera o Base64 de fallback e enfileira a tarefa assíncrona de visão computacional (OpenCV 500x500).
         """
+        if not self.foto:
+            self.foto_base64 = None
+        elif not getattr(self, "_skip_async", False):
+            from apps.processamento.services.imagem_service import ImagemService
+            b64 = ImagemService.arquivo_para_data_uri(self.foto)
+            if b64:
+                self.foto_base64 = b64
         super().save(*args, **kwargs)
         if self.foto and not getattr(self, "_skip_async", False):
             from apps.processamento.async_worker import enfileirar_processamento_aluno
@@ -126,6 +139,12 @@ class Professor(models.Model):
         null=True,
         help_text="Foto do professor, salva em backend/media/professores/",
     )
+    foto_base64 = models.TextField(
+        blank=True,
+        null=True,
+        editable=False,
+        help_text="Foto processada em Data URI (Base64) armazenada no banco de dados",
+    )
     ativo = models.BooleanField(default=True, help_text="Professor com acesso ativo ao carômetro")
     turmas = models.ManyToManyField(
         "academico.Turma",
@@ -150,6 +169,13 @@ class Professor(models.Model):
         Salva o professor e enfileira o processamento de imagem em segundo plano
         caso uma nova foto tenha sido fornecida.
         """
+        if not self.foto:
+            self.foto_base64 = None
+        elif not getattr(self, "_skip_async", False):
+            from apps.processamento.services.imagem_service import ImagemService
+            b64 = ImagemService.arquivo_para_data_uri(self.foto)
+            if b64:
+                self.foto_base64 = b64
         super().save(*args, **kwargs)
         if self.foto and not getattr(self, "_skip_async", False):
             from apps.processamento.async_worker import enfileirar_processamento_professor

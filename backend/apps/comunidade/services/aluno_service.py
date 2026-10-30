@@ -106,6 +106,9 @@ class AlunoService:
             ativo=dados.get("ativo", True),
         )
         # Evita enfileiramento duplicado no model.save() já que chamaremos o worker explicitamente
+        if foto:
+            from apps.processamento.services.imagem_service import ImagemService
+            aluno.foto_base64 = ImagemService.arquivo_para_data_uri(foto)
         aluno._skip_async = True
         aluno.save()
 

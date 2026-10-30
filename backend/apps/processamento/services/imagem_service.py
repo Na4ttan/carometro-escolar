@@ -9,6 +9,8 @@ Responsabilidades:
 5. Preservação de transparência em PNGs e fidelidade de perfis de cores ICC (sRGB, Display P3).
 """
 
+import base64
+import mimetypes
 import os
 from io import BytesIO
 from PIL import Image, ImageOps
@@ -183,8 +185,17 @@ class ImagemService:
             old_path = None
 
         try:
-            foto_field.open()
-            with Image.open(foto_field) as img:
+            # Se o arquivo no disco foi perdido, mas existe foto_base64 no banco, restaura os bytes a partir do Base64
+            instance = getattr(foto_field, "instance", None)
+            b64_data = getattr(instance, "foto_base64", None) if instance else None
+            if (not old_path or not os.path.exists(old_path)) and b64_data and "," in b64_data:
+                raw_input = base64.b64decode(b64_data.split(",", 1)[1])
+                source_stream = BytesIO(raw_input)
+            else:
+                foto_field.open()
+                source_stream = foto_field
+
+            with Image.open(source_stream) as img:
                 # 1. Ajusta rotação baseada em metadados EXIF
                 img = ImageOps.exif_transpose(img)
                 icc_profile = img.info.get("icc_profile")
@@ -206,6 +217,7 @@ class ImagemService:
                     img = img.convert("RGBA")
                     img.save(buffer, format="PNG", optimize=True, **save_kwargs)
                     novo_nome = f"{nome_base}.png"
+                    mime_type = "image/png"
                 else:
                     img = img.convert("RGB")
                     img.save(
@@ -216,9 +228,16 @@ class ImagemService:
                         **save_kwargs,
                     )
                     novo_nome = f"{nome_base}.jpg"
+                    mime_type = "image/jpeg"
 
-                buffer.seek(0)
-                foto_field.save(novo_nome, ContentFile(buffer.read()), save=False)
+                raw_bytes = buffer.getvalue()
+                foto_field.save(novo_nome, ContentFile(raw_bytes), save=False)
+
+                # Salva também a versão Base64 na instância do modelo para persistência no PostgreSQL
+                instance = getattr(foto_field, "instance", None)
+                if instance is not None and hasattr(instance, "foto_base64"):
+                    b64_str = base64.b64encode(raw_bytes).decode("ascii")
+                    instance.foto_base64 = f"data:{mime_type};base64,{b64_str}"
 
                 # 4. Remove o arquivo anterior do disco se foi renomeado
                 if old_path and hasattr(foto_field, "path") and old_path != foto_field.path:
@@ -231,3 +250,30 @@ class ImagemService:
                 return True
         except Exception:
             return False
+
+    @classmethod
+    def arquivo_para_data_uri(cls, foto_field):
+        """
+        Converte um arquivo de imagem (ImageFieldFile ou UploadedFile) em string Data URI Base64.
+        Usado como armazenamento imediato antes/durante o processamento em segundo plano.
+        """
+        if not foto_field:
+            return None
+        try:
+            foto_field.open("rb")
+            raw_bytes = foto_field.read()
+            foto_field.seek(0)
+            if not raw_bytes:
+                return None
+            mime_type, _ = mimetypes.guess_type(foto_field.name or "foto.jpg")
+            if not mime_type or not mime_type.startswith("image/"):
+                mime_type = "image/jpeg"
+            b64_str = base64.b64encode(raw_bytes).decode("ascii")
+            return f"data:{mime_type};base64,{b64_str}"
+        except Exception:
+            return None
+
+
+def processar_foto_carometro(foto_field, size=None, quality=None, force=False):
+    """Atalho funcional para ImagemService.processar_foto."""
+    return ImagemService.processar_foto(foto_field, size=size, quality=quality, force=force)
